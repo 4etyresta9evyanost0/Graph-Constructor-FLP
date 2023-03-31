@@ -1,0 +1,27 @@
+﻿<Application x:Class="Graph_Constructor_FLP.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Graph_Constructor_FLP"
+             xmlns:vm="clr-namespace:Graph_Constructor_FLP.ViewModel"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary x:Name="dictionary">
+            <!--<ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="BlueGrey" SecondaryColor="LightGreen" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+            </ResourceDictionary.MergedDictionaries>-->
+            <!--<Style TargetType="Control">
+                <Setter Property="Foreground" Value ="White"/>
+            </Style>
+            <Style TargetType="TextBlock">
+                <Setter Property="Foreground" Value ="White"/>
+            </Style>-->
+            <vm:ApplicationViewModel x:Key="applicationVm" x:Name="applicationVm"/>
+            <vm:SettingsViewModel x:Key="settingsVm" x:Name="settingsVm"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
