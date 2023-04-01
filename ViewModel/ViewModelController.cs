@@ -10,5 +10,7 @@ namespace Graph_Constructor_FLP.ViewModel
     {
         public static SettingsViewModel SettingsViewModel { get => App.Current.Resources["settingsVm"] as SettingsViewModel; }
         public static ApplicationViewModel ApplicationViewModel { get => App.Current.Resources["applicationVm"] as ApplicationViewModel; }
+
+        public static ObjectsViewModel ObjectsViewModel { get => App.Current.Resources["objectsVm"] as ObjectsViewModel; }
     }
 }

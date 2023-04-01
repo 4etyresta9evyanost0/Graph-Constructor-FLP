@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -48,7 +50,7 @@ namespace Graph_Constructor_FLP.ViewModel
         }
 
         public SettingsViewModel()
-        {
+        { 
             VertexFillColor = Colors.MidnightBlue;
             VertexDiameter = 75;
             VertexStrokeColor = Colors.Black;

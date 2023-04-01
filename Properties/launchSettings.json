@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Graph-Constructor-FLP": {
+      "commandName": "Project",
+      "commandLineArgs": "-debug"
+    }
+  }
+}

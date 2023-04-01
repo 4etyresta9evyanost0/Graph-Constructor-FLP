@@ -5,7 +5,9 @@
              xmlns:vm="clr-namespace:Graph_Constructor_FLP.ViewModel"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             StartupUri="MainWindow.xaml">
+             StartupUri="Windows\MainWindow.xaml"
+             
+             Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary x:Name="dictionary">
             <!--<ResourceDictionary.MergedDictionaries>
@@ -22,6 +24,67 @@
             </Style>-->
             <vm:ApplicationViewModel x:Key="applicationVm" x:Name="applicationVm"/>
             <vm:SettingsViewModel x:Key="settingsVm" x:Name="settingsVm"/>
+            <vm:ObjectsViewModel x:Key="objectsVm" x:Name="objectsVm"/>
+
+            <Canvas Width="35" Height="35"  x:Key="ButtonAdd">
+                <Path Width="30" Height="30" Canvas.Left="2.5" Canvas.Top="2.5" Stroke="#FF1C8806" StrokeThickness="4">
+                    <Path.Data>
+                        <GeometryGroup>
+                            <LineGeometry StartPoint="15,30" EndPoint="15,0"></LineGeometry>
+                            <LineGeometry StartPoint="0,15" EndPoint="30,15"></LineGeometry>
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
+            </Canvas>
+            <Canvas Width="35" Height="35"  x:Key="ButtonMove">
+                <Path Width="30" Height="30" Canvas.Left="2.5" Canvas.Top="2.5" Stroke="Black" StrokeThickness="3">
+                    <Path.Data>
+                        <GeometryGroup>
+                            <LineGeometry StartPoint="15,26" EndPoint="15,4"></LineGeometry>
+                            <LineGeometry StartPoint="4,15" EndPoint="26,15"></LineGeometry>
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
+                <Polygon Width="30" Height="30" Canvas.Left="2.5" Canvas.Top="2.5" Points="
+                         0,15 
+                         4,18 
+                         4,12" 
+                         Stroke="Black" Fill="Black" />
+                <Polygon Width="30" Height="30" Canvas.Left="2.5" Canvas.Top="2.5" Points="
+                         30,15 
+                         26,18 
+                         26,12" 
+                         Stroke="Black" Fill="Black" />
+                <Polygon Width="30" Height="30" Canvas.Left="2.5" Canvas.Top="2.5" Points="
+                         15,30 
+                         18,26 
+                         12,26" 
+                         Stroke="Black" Fill="Black" />
+                <Polygon Width="30" Height="30" Canvas.Left="2.5" Canvas.Top="2.5" Points="
+                         15,0 
+                         18,4 
+                         12,4"  
+                         Stroke="Black" Fill="Black" />
+            </Canvas>
+            <Canvas Width="35" Height="35"  x:Key="ButtonDelete">
+                <Path Width="30" Height="30" Canvas.Left="2.5" Canvas.Top="2.5" Stroke="#FFB12A2A" StrokeThickness="5">
+                    <Path.Data>
+                        <GeometryGroup>
+                            <LineGeometry StartPoint="30,30" EndPoint="0,0"></LineGeometry>
+                            <LineGeometry StartPoint="0,30" EndPoint="30,0"></LineGeometry>
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
+            </Canvas>
+            <Canvas Width="35" Height="35"  x:Key="ButtonConnect" RenderTransformOrigin="0.5,0.5">
+                <Path Width="30" Height="30" Canvas.Left="2.5" Canvas.Top="2.5" Stroke="#FF909090" StrokeThickness="5">
+                    <Path.Data>
+                        <GeometryGroup>
+                            <EllipseGeometry Center="15,15" RadiusX="12" RadiusY="12"></EllipseGeometry>
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
+            </Canvas>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
