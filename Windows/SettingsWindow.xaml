@@ -29,7 +29,9 @@
                     Orientation="Horizontal"
                     VerticalAlignment="Top" 
                     HorizontalAlignment="Left">
-                    <xctk:DoubleUpDown Width="72" Value="{Binding VertexDiameter, Mode=TwoWay}"/>
+                    <xctk:DoubleUpDown Width="72" 
+                                       Minimum="30" Maximum="120"
+                                       Value="{Binding VertexDiameter, Mode=TwoWay}"/>
                     <Label Margin="2" Padding="0" Content="Диаметр вершин"/>
                 </StackPanel>
                 <StackPanel 
@@ -43,7 +45,9 @@
                     Orientation="Horizontal"
                     VerticalAlignment="Top" 
                     HorizontalAlignment="Left">
-                    <xctk:DoubleUpDown Width="72" Value="{Binding VertexStrokeSize, Mode=TwoWay}"/>
+                    <xctk:DoubleUpDown Width="72"
+                                       Minimum="0" Maximum="20"
+                                       Value="{Binding VertexStrokeSize, Mode=TwoWay}"/>
                     <Label Margin="2" Padding="0" Content="Толщина обводки"/>
                 </StackPanel>
 
@@ -58,32 +62,20 @@
                     Orientation="Horizontal"
                     VerticalAlignment="Top" 
                     HorizontalAlignment="Left">
-                    <xctk:DoubleUpDown Width="72" Value="{Binding EdgeStrokeSize, Mode=TwoWay}"/>
+                    <xctk:DoubleUpDown Width="72" 
+                                       Minimum="0" Maximum="20"
+                                       Value="{Binding EdgeStrokeSize, Mode=TwoWay}"/>
                     <Label Margin="2" Padding="0" Content="Толщина линии"/>
                 </StackPanel>
+                <StackPanel 
+                    Orientation="Horizontal"
+                    VerticalAlignment="Top" 
+                    HorizontalAlignment="Left">
+                    <CheckBox Margin="2" Padding="0" Content=" Предупреждение при удалении" IsChecked="{Binding IsAskingForDelete, Mode=TwoWay}"/>
+                </StackPanel>
+                
+                
             </StackPanel>
-            <!--<StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
-                <StackPanel.Resources>
-                    <Style TargetType="{x:Type StackPanel}">
-                        <Setter Property="Margin" Value="10,10,10,0"/>
-                    </Style>
-                </StackPanel.Resources>
-
-                <StackPanel 
-                    Orientation="Horizontal"
-                    VerticalAlignment="Top" 
-                    HorizontalAlignment="Left">
-                    <xctk:ColorPicker Width="72"/>
-                    <Label Margin="2" Padding="0" Content="Цвет линии"/>
-                </StackPanel>
-                <StackPanel 
-                    Orientation="Horizontal"
-                    VerticalAlignment="Top" 
-                    HorizontalAlignment="Left">
-                    <xctk:DoubleUpDown Width="72"/>
-                    <Label Margin="2" Padding="0" Content="Толщина линии"/>
-                </StackPanel>
-            </StackPanel>-->
         </StackPanel>
         <DockPanel Margin="0,20,0,0">
             

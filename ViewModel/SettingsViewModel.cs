@@ -49,15 +49,23 @@ namespace Graph_Constructor_FLP.ViewModel
             set { SetValue(value); }
         }
 
+        public bool IsAskingForDelete
+        {
+            get { return GetValue<bool>(); }
+            set { SetValue(value); }
+        }
+
         public SettingsViewModel()
         { 
-            VertexFillColor = Colors.MidnightBlue;
-            VertexDiameter = 75;
+            VertexFillColor = Color.FromRgb(0xAB, 0xCB, 0x51); // #ABCB51
+            VertexDiameter = 60;
             VertexStrokeColor = Colors.Black;
-            VertexStrokeSize = 2;
+            VertexStrokeSize = 1;
 
             EdgeStrokeColor = Colors.Black;
-            EdgeStrokeSize = 2;
+            EdgeStrokeSize = 1;
+
+            IsAskingForDelete = true;
         }
     }
 }

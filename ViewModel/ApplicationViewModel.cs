@@ -175,17 +175,26 @@ namespace Graph_Constructor_FLP.ViewModel
             }
         }
 
+
+        public string Name
+        {
+            get => GetValue<string>();
+            set => SetValue(value);
+        }
+
+        public int Index { get; set; }
+
         public double? Value
         {
             get => GetValue<double>();
             set => SetValue(value); 
         }
 
-        public UIElement UIElement
-        {
-            get => GetValue<UIElement>();
-            set => SetValue(value);
-        }
+        //public UIElement UIElement
+        //{
+        //    get => GetValue<UIElement>();
+        //    set => SetValue(value);
+        //}
 
         public static ApplicationViewModel AppVm => ViewModelController.ApplicationViewModel;
         public static SettingsViewModel Settings => ViewModelController.SettingsViewModel;
@@ -194,14 +203,13 @@ namespace Graph_Constructor_FLP.ViewModel
 
         #region Methods
 
+        public virtual void Init() { }
+
         #endregion
 
-        public CanvasObj() 
-        {
-            //StrokeColor = Colors.Bisque;
-            //StrokeThickness = 1; 
-        }
-        public CanvasObj(double x, double y, double width, double height) : base()
+        public CanvasObj() : this(5, 5, 30, 30) { }
+
+        public CanvasObj(double x, double y, double? width, double? height)
         {
             X = x;
             Y = y;
@@ -209,14 +217,14 @@ namespace Graph_Constructor_FLP.ViewModel
             Height = height;
         }
 
-        public CanvasObj(double x, double y, Size size) : base()
+        public CanvasObj(double x, double y, Size size)
         {
             X = x;
             Y = y;
             Size = size;
         }
 
-        public CanvasObj(Point begin, Point end) : base()
+        public CanvasObj(Point begin, Point end)
         {
             Begin = begin;
             End = end;
@@ -237,6 +245,9 @@ namespace Graph_Constructor_FLP.ViewModel
             get => GetValue<Color>();
             set => SetValue(value);
         }
+        public DelegateCommand<Color> FillColorChanged { get; private set; }
+
+        public DelegateCommand SettingStandardFillColor { get; private set; }
 
         //public double StrokeThickness => SettingsVm.VertexDiameter;
         //{
@@ -248,18 +259,24 @@ namespace Graph_Constructor_FLP.ViewModel
 
         #region Methods
 
-        #endregion
-        public Vertex() : base()
+        public override void Init()
         {
-
+            FillColorChanged = new DelegateCommand<Color>(FillColorChange);
+            SettingStandardFillColor = new DelegateCommand(SetStandardFillColor);
         }
 
-        public Vertex(double x, double y, double width, double height) : base(x, y, width, height) { }
 
-        public Vertex(double x, double y, Size size) : base(x, y, size) { }
+        public void FillColorChange(Color color) => FillColor = color;
+        public void SetStandardFillColor() => FillColor = null;
+        #endregion
 
-        public Vertex(Point begin, Point end) : base(begin, end) { }
+        public Vertex(double x, double y, double width, double height) : base(x, y, width, height) => Init();
 
+        public Vertex(double x, double y, Size size) : base(x, y, size) => Init();
+
+        public Vertex(Point begin, Point end) : base(begin, end) => Init();
+
+        public Vertex() : base() => Init();
     }
 
     class Edge : CanvasObj
@@ -274,16 +291,14 @@ namespace Graph_Constructor_FLP.ViewModel
         #endregion
 
         #region Methods
-
-        #endregion
-
-        public Edge() : base()
+        public override void Init()
         {
             _vertices.CollectionChanged += (x, ev) =>
             {
                 RaisePropertyChanged(() => Vertices);
             };
         }
+        #endregion
 
         public Edge(double x1, double y1, double x2, double y2) : base(x1, y1, x2, y2) { }
 

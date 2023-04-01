@@ -18,8 +18,14 @@
         <converters:ColorToBrushConverter x:Name="ColorToBrushConverter" x:Key="ColorToBrushConverter"/>
         <DataTemplate DataType="{x:Type vm:Vertex}">
             <Grid Margin="0">
+                <Grid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Изменить цвет" Command="{Binding FillColorChanged}"/>
+                        <MenuItem Header="Стандартный цвет" Command="{Binding SettingStandardFillColor}"/>
+                    </ContextMenu>
+                </Grid.ContextMenu>
                 <Ellipse
-                    Width="{DXBinding Settings.VertexDiameter}"
+                    Width="{DXBinding 'Settings.VertexDiameter'}"
                     Height="{DXBinding Settings.VertexDiameter}"
                     Stroke="{DXBinding Settings.VertexStrokeColor, Converter={StaticResource ColorToBrushConverter}}"
                     StrokeThickness="{DXBinding Settings.VertexStrokeSize}"
@@ -32,22 +38,41 @@
             </Grid>
         </DataTemplate>
     </Window.Resources>
-    <DockPanel >
+    <DockPanel>
         <DockPanel x:Name="toolPanel"  Height="90" DockPanel.Dock="Top">
-            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                <Button Content="Сохранить" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,10,10,10" Height="20" Width="68" Click="SaveButton_Click" />
-                <Button Content="Настройки" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Height="20" Width="68" Click="LoadSettings_Click" />
-                <xctk:DropDownButton x:Name="debugButton" Margin="10" Height="20" Content="DEBUG"
+            <Menu DockPanel.Dock="Top" BorderBrush="#FF868686" BorderThickness="0,0,0,1">
+                <MenuItem Header="Файл">
+                    <MenuItem Header="Сохранить" Click="SaveButton_Click"></MenuItem>
+                    <MenuItem Header="Загрузить"></MenuItem>
+                    <Separator/>
+                    <MenuItem Header="Выход"></MenuItem>
+                </MenuItem>
+                <MenuItem Header="Настройки" Click="LoadSettings_Click"></MenuItem>
+                <xctk:DropDownButton x:Name="debugButton" Content="DEBUG" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  DropDownPosition="MousePoint">
+                    <xctk:DropDownButton.Style>
+                        <Style TargetType="xctk:DropDownButton">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                        </Style>
+                    </xctk:DropDownButton.Style>
                     <xctk:DropDownButton.DropDownContent>
                         <StackPanel>
                             <Label Content="{Binding CanvasAction}"></Label>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="DEBUG__ADD__VERTEX" Margin="5" Height="20" Click="Debug_Click"/>
                                 <Button Content="DEBUG__ADD__EDGE"   Margin="5" Height="20" Click="Debug_Click_2"/>
+                                <Button Content="DEBUG__SET__VERTEX__BLACK"   Margin="5" Height="20" Click="Debug_Click_3"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <ListBox x:Name="_canvLb" ItemsSource="{Binding ObjectsVm.CanvasObjects}" Margin="10" Width="260" Height="200"/>
+                                <ListBox x:Name="_canvLb" ItemsSource="{Binding ObjectsVm.CanvasObjects}" Margin="10" Width="260" Height="200">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type vm:Vertex}">
+                                            <TextBlock Text="{Binding Value}"></TextBlock>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
                                 <ListBox x:Name="_edgeLb" ItemsSource="{Binding ObjectsVm.Edges}" Margin="10" Width="260" Height="200"/>
                                 <ListBox x:Name="_vertLb" ItemsSource="{Binding ObjectsVm.Vertices}" Margin="10" Width="260" Height="200"/>
                             </StackPanel>
@@ -55,9 +80,9 @@
                         </StackPanel>
                     </xctk:DropDownButton.DropDownContent>
                 </xctk:DropDownButton>
-                
-            </StackPanel>
-            
+            </Menu>
+            <!--<Button Content="Сохранить" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,10,10,10" Height="20" Width="68" Click="SaveButton_Click" />
+                <Button Content="Настройки" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Height="20" Width="68" Click="LoadSettings_Click" />-->
             <WrapPanel DockPanel.Dock="Top" Background="#F5F5F5">
                 <WrapPanel.Resources>
                     <Style TargetType="{x:Type RadioButton}">
@@ -66,105 +91,122 @@
                         <Setter Property="Height" Value="40"/>
                     </Style>
                 </WrapPanel.Resources>
-                <!--key Q--><RadioButton x:Name="addingButton"
+                <!--key Q-->
+                <RadioButton x:Name="addingButton"
                     Style="{StaticResource {x:Type ToggleButton}}" Width="40" Height="40" Margin="5" Padding="0" ToolTip="Добавить (Й)" Content="{StaticResource ButtonAdd}" 
                     Command="{Binding CanvasActionChangeCommand}" CommandParameter="Adding"/>
-                <!--key W--><RadioButton x:Name="movingButton"
+                <!--key W-->
+                <RadioButton x:Name="movingButton"
                     Style="{StaticResource {x:Type ToggleButton}}" Width="40" Height="40" Margin="5" Padding="0" ToolTip="Переместить (Ц)" Content="{StaticResource ButtonMove}" 
                     Command="{Binding CanvasActionChangeCommand}" CommandParameter="Moving"
                     IsChecked="True"/>
-                <!--key E--><RadioButton x:Name="connectingButton"
+                <!--key E-->
+                <RadioButton x:Name="connectingButton"
                     Style="{StaticResource {x:Type ToggleButton}}" Width="40" Height="40" Margin="5" Padding="0" ToolTip="Соединить (У)" Content="{StaticResource ButtonConnect}"
                     Command="{Binding CanvasActionChangeCommand}" CommandParameter="Connecting"/>
-                <!--key R--><RadioButton x:Name="deletingButton"
+                <!--key R-->
+                <RadioButton x:Name="deletingButton"
                     Style="{StaticResource {x:Type ToggleButton}}" Width="40" Height="40" Margin="5" Padding="0" ToolTip="Удалить (К)" Content="{StaticResource ButtonDelete}"
                     Command="{Binding CanvasActionChangeCommand}" CommandParameter="Deleting"/>
                 <!--<Button Width="20" Height="20" Margin="2" Padding="0" ToolTip="Изменить" Content="{StaticResource ButtonChange}"></Button>-->
             </WrapPanel>
 
-
-
-
         </DockPanel>
-        <ListBox x:Name="mainCanvas" 
-                 Background="#CCC" 
-                 BorderBrush="Black" 
-                 BorderThickness="0,1,0,0" 
-                 DockPanel.Dock="Top" 
-                 Grid.Row="1" 
-                 ItemsSource="{Binding ObjectsVm.CanvasObjects}" 
-                 MouseDown="Canvas_MouseDown"
-                 MouseMove="Canvas_MouseMove" 
-                 MouseUp="Canvas_MouseUp"
-                 SelectionMode="Extended">
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Canvas />
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-            <ListBox.ItemContainerStyle>
-                <Style
-                    TargetType="ListBoxItem"
-                    >
-                    <Setter
-                        Property="Canvas.Left"
-                        Value="{Binding X}"
-                        />
-                    <Setter
-                        Property="Canvas.Top"
-                        Value="{Binding Y}"
-                        />
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ListBoxItem">
-                                <Border 
-                                    Name="Border"
-                                    BorderThickness="1"
-                                    Padding="2">
-                                    <ContentPresenter />
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <!--When the ListBoxItem is selected draw a simple blue border around it.-->
-                                    <Trigger Property="IsSelected" Value="true">
-                                        <Setter 
-                                            TargetName="Border" 
-                                            Property="BorderBrush"
-                                            Value="#3e61c2"/>
-                                        <Setter 
-                                            TargetName="Border" 
-                                            Property="Background"
-                                            Value="LightBlue"/>
-                                        <Setter 
-                                            TargetName="Border" 
-                                            Property="CornerRadius"
-                                            Value="2"/>
-                                    </Trigger>
-                                    <Trigger Property="IsMouseOver" Value="true">
-                                        <Setter 
-                                            TargetName="Border" 
-                                            Property="BorderBrush"
-                                            Value="#3e61c2"/>
-                                        <Setter 
-                                            TargetName="Border" 
-                                            Property="Background"
-                                            Value="LightBlue"/>
-                                        <Setter 
-                                            TargetName="Border" 
-                                            Property="Opacity"
-                                            Value="0.5"/>
-                                        <Setter 
-                                            TargetName="Border" 
-                                            Property="CornerRadius"
-                                            Value="2"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <!---->
-                </Style>
-            </ListBox.ItemContainerStyle>
-        </ListBox>
-
+        <Grid>
+            <ListBox x:Name="mainCanvas" 
+                     Background="#CCC" 
+                     BorderBrush="Black" 
+                     BorderThickness="0,1,0,0" 
+                     DockPanel.Dock="Top" 
+                     ItemsSource="{Binding ObjectsVm.CanvasObjects}" 
+                     MouseDown="Canvas_MouseDown"
+                     MouseMove="Canvas_MouseMove" 
+                     MouseUp="Canvas_MouseUp"
+                     SelectionMode="Extended">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerStyle>
+                    <Style
+                        TargetType="ListBoxItem"
+                        >
+                        <Setter
+                            Property="Canvas.Left"
+                            Value="{Binding X}"
+                            />
+                        <Setter
+                            Property="Canvas.Top"
+                            Value="{Binding Y}"
+                            />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border 
+                                        Name="Border"
+                                        BorderThickness="1"
+                                        Padding="2">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <!--When the ListBoxItem is selected draw a simple blue border around it.-->
+                                        <Trigger Property="IsSelected" Value="true">
+                                            <Setter 
+                                                TargetName="Border" 
+                                                Property="BorderBrush"
+                                                Value="#3e61c2"/>
+                                            <Setter 
+                                                TargetName="Border" 
+                                                Property="Background"
+                                                Value="LightBlue"/>
+                                            <Setter 
+                                                TargetName="Border" 
+                                                Property="CornerRadius"
+                                                Value="2"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="true">
+                                            <Setter 
+                                                TargetName="Border" 
+                                                Property="BorderBrush"
+                                                Value="#3e61c2"/>
+                                            <Setter 
+                                                TargetName="Border" 
+                                                Property="Background"
+                                                Value="LightBlue"/>
+                                            <Setter 
+                                                TargetName="Border" 
+                                                Property="Opacity"
+                                                Value="0.5"/>
+                                            <Setter 
+                                                TargetName="Border" 
+                                                Property="CornerRadius"
+                                                Value="2"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <!---->
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+            <!--
+        This Canvas and Border are used as a very simple way to render a drag selection rectangle.
+        -->
+            <Canvas
+            x:Name="dragSelectionCanvas"
+            Visibility="Collapsed"
+            >
+                <Border 
+                x:Name="dragSelectionBorder"
+                BorderBrush="#3e61c2"
+                BorderThickness="1"
+                Background="LightBlue"
+                CornerRadius="1"
+                Opacity="0.5"
+                />
+            </Canvas>
+        </Grid>
     </DockPanel>
 </Window>

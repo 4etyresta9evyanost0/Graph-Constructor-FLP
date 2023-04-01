@@ -23,9 +23,9 @@ using DevExpress.Mvvm.ModuleInjection.Native;
 
 namespace Graph_Constructor_FLP
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+    
+    
+    
     public partial class MainWindow : Window
     {
         SettingsWindow _settingsWindow;
@@ -34,15 +34,6 @@ namespace Graph_Constructor_FLP
         public MainWindow()
         {
             InitializeComponent();
-
-            // Потом реализовать, наверное
-            //
-            //Closing += (x, ev) =>
-            //{
-            //    var closingWindow = new OnClosingDialogWindow();
-            //    ev.Cancel = !closingWindow.ShowDialog()!.Value;
-            //};
-
         }
 
         private void LoadSettings_Click(object sender, RoutedEventArgs e)
@@ -53,7 +44,7 @@ namespace Graph_Constructor_FLP
 
         public void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            //
+            
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -76,6 +67,11 @@ namespace Graph_Constructor_FLP
                 );
         }
 
+        private void Debug_Click_3(object sender, RoutedEventArgs e)
+        {
+            (AppVm.ObjectsVm.CanvasObjects[0] as Vertex).FillColor = Colors.Black;
+        }
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
@@ -95,7 +91,7 @@ namespace Graph_Constructor_FLP
         }
 
 
-        // Vertex Mouse
+        // Mouse Works
         #region Vertex Mouse Fields
         private bool isLeftMouseButtonDownOnWindow = false;
         private bool isDraggingSelectionRect = false;
@@ -108,52 +104,30 @@ namespace Graph_Constructor_FLP
 
         private void Vertex_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton != MouseButton.Left)
-            {
+            if (e.ChangedButton != MouseButton.Left || AppVm.CanvasAction != CanvasAction.Moving)
                 return;
-            }
 
             var ellipse = (FrameworkElement)sender;
             var vertVm = (Vertex)ellipse.DataContext;
 
             isLeftMouseDownOnRectangle = true;
 
-            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
-            {
-                //
-                // Control key was held down.
-                // This means that the rectangle is being added to or removed from the existing selection.
-                // Don't do anything yet, we will act on this later in the MouseUp event handler.
-                //
+            if ((Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) != 0)
                 isLeftMouseAndControlDownOnRectangle = true;
-            }
             else
             {
-                //
-                // Control key is not held down.
-                //
                 isLeftMouseAndControlDownOnRectangle = false;
-
-                if (this.mainCanvas.SelectedItems.Count == 0)
+                if (mainCanvas.SelectedItems.Count == 0)
+                    mainCanvas.SelectedItems.Add(vertVm);
+                else if (!mainCanvas.SelectedItems.Contains(vertVm))
                 {
-                    this.mainCanvas.SelectedItems.Add(vertVm);
-                }
-                else if (this.mainCanvas.SelectedItems.Contains(vertVm))
-                {
-                    // 
-                    // Item is already selected, do nothing.
-                    // We will act on this in the MouseUp if there was no drag operation.
-                    //
-                }
-                else
-                {
-                    this.mainCanvas.SelectedItems.Clear();
-                    this.mainCanvas.SelectedItems.Add(vertVm);
+                    mainCanvas.SelectedItems.Clear();
+                    mainCanvas.SelectedItems.Add(vertVm);
                 }
             }
 
             ellipse.CaptureMouse();
-            origMouseDownPoint = e.GetPosition(this);
+            origMouseDownPoint = e.GetPosition(mainCanvas);
 
             e.Handled = true;
         }
@@ -165,54 +139,18 @@ namespace Graph_Constructor_FLP
                 var vertVm = (Vertex)ellipse.DataContext;
 
                 if (!isDraggingRectangle)
-                {
-                    //
-                    // Execute mouse up selection logic only if there was no drag operation.
-                    //
                     if (isLeftMouseAndControlDownOnRectangle)
-                    {
-                        //
-                        // Control key was held down.
-                        // Toggle the selection.
-                        //
-                        if (this.mainCanvas.SelectedItems.Contains(vertVm))
-                        {
-                            //
-                            // Item was already selected, control-click removes it from the selection.
-                            //
-                            this.mainCanvas.SelectedItems.Remove(vertVm);
-                        }
+                        if (mainCanvas.SelectedItems.Contains(vertVm))
+                            mainCanvas.SelectedItems.Remove(vertVm);
                         else
-                        {
-                            // 
-                            // Item was not already selected, control-click adds it to the selection.
-                            //
-                            this.mainCanvas.SelectedItems.Add(vertVm);
-                        }
-                    }
+                            mainCanvas.SelectedItems.Add(vertVm);
                     else
-                    {
-                        //
-                        // Control key was not held down.
-                        //
-                        if (this.mainCanvas.SelectedItems.Count == 1 &&
-                            this.mainCanvas.SelectedItem == vertVm)
+                        if (mainCanvas.SelectedItems.Count != 1 ||
+                            mainCanvas.SelectedItem != vertVm)
                         {
-                            //
-                            // The item that was clicked is already the only selected item.
-                            // Don't need to do anything.
-                            //
+                            mainCanvas.SelectedItems.Clear();
+                            mainCanvas.SelectedItems.Add(vertVm);
                         }
-                        else
-                        {
-                            //
-                            // Clear the selection and select the clicked item as the only selected item.
-                            //  
-                            this.mainCanvas.SelectedItems.Clear();
-                            this.mainCanvas.SelectedItems.Add(vertVm);
-                        }
-                    }
-                }
 
                 ellipse.ReleaseMouseCapture();
                 isLeftMouseDownOnRectangle = false;
@@ -227,15 +165,12 @@ namespace Graph_Constructor_FLP
         {
             if (isDraggingRectangle)
             {
-                //
-                // Drag-move selected rectangles.
-                //
-                Point curMouseDownPoint = e.GetPosition(this);
+                Point curMouseDownPoint = e.GetPosition(mainCanvas);
                 var dragDelta = curMouseDownPoint - origMouseDownPoint;
 
                 origMouseDownPoint = curMouseDownPoint;
 
-                foreach (CanvasObj rectangle in this.mainCanvas.SelectedItems)
+                foreach (CanvasObj rectangle in mainCanvas.SelectedItems)
                 {
                     if (rectangle is not Vertex)
                         continue;
@@ -246,21 +181,11 @@ namespace Graph_Constructor_FLP
             }
             else if (isLeftMouseDownOnRectangle)
             {
-                //
-                // The user is left-dragging the rectangle,
-                // but don't initiate the drag operation until
-                // the mouse cursor has moved more than the threshold value.
-                //
-                Point curMouseDownPoint = e.GetPosition(this);
+                Point curMouseDownPoint = e.GetPosition(mainCanvas);
                 var dragDelta = curMouseDownPoint - origMouseDownPoint;
                 double dragDistance = Math.Abs(dragDelta.Length);
                 if (dragDistance > DragThreshold)
-                {
-                    //
-                    // When the mouse has been dragged more than the threshold value commence dragging the rectangle.
-                    //
                     isDraggingRectangle = true;
-                }
 
                 e.Handled = true;
             }
@@ -269,17 +194,124 @@ namespace Graph_Constructor_FLP
         // Canvas Mouse
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (e.ChangedButton != MouseButton.Left || AppVm.CanvasAction != CanvasAction.Moving)
+                return;
 
-        }
-
-        private void Canvas_MouseMove(object sender, MouseEventArgs e)
-        {
-
+            mainCanvas.SelectedItems.Clear();
+            isLeftMouseButtonDownOnWindow = true;
+            origMouseDownPoint = e.GetPosition(mainCanvas);
+            mainCanvas.CaptureMouse();
+            e.Handled = true;
         }
 
         private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (e.ChangedButton != MouseButton.Left || AppVm.CanvasAction != CanvasAction.Moving)
+            {
+                return;
+            }
 
+            bool wasDragSelectionApplied = false;
+
+            if (isDraggingSelectionRect)
+            {
+                isDraggingSelectionRect = false;
+                ApplyDragSelectionRect();
+                wasDragSelectionApplied = true;
+                e.Handled = true;
+            }
+
+            if (isLeftMouseButtonDownOnWindow)
+            {
+                isLeftMouseButtonDownOnWindow = false;
+                mainCanvas.ReleaseMouseCapture();
+                e.Handled = true;
+            }
+
+            if (!wasDragSelectionApplied)
+                mainCanvas.SelectedItems.Clear();
+        }
+
+        private void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDraggingSelectionRect)
+            {
+                Point curMouseDownPoint = e.GetPosition(mainCanvas);
+                UpdateDragSelectionRect(origMouseDownPoint, curMouseDownPoint);
+                e.Handled = true;
+            }
+            else if (isLeftMouseButtonDownOnWindow)
+            {
+                Point curMouseDownPoint = e.GetPosition(mainCanvas);
+                var dragDelta = curMouseDownPoint - origMouseDownPoint;
+                double dragDistance = Math.Abs(dragDelta.Length);
+                if (dragDistance > DragThreshold)
+                {
+                    isDraggingSelectionRect = true;
+                    InitDragSelectionRect(origMouseDownPoint, curMouseDownPoint);
+                }
+                e.Handled = true;
+            }
+        }
+
+        private void InitDragSelectionRect(Point pt1, Point pt2)
+        {
+            UpdateDragSelectionRect(pt1, pt2);
+            dragSelectionCanvas.Visibility = Visibility.Visible;
+        }
+
+        private void UpdateDragSelectionRect(Point pt1, Point pt2)
+        {
+            double x, y, width, height;
+
+            if (pt2.X < pt1.X)
+            {
+                x = pt2.X;
+                width = pt1.X - pt2.X;
+            }
+            else
+            {
+                x = pt1.X;
+                width = pt2.X - pt1.X;
+            }
+
+            if (pt2.Y < pt1.Y)
+            {
+                y = pt2.Y;
+                height = pt1.Y - pt2.Y;
+            }
+            else
+            {
+                y = pt1.Y;
+                height = pt2.Y - pt1.Y;
+            }
+
+            Canvas.SetLeft(dragSelectionBorder, x);
+            Canvas.SetTop(dragSelectionBorder, y);
+            dragSelectionBorder.Width = width;
+            dragSelectionBorder.Height = height;
+        }
+
+        private void ApplyDragSelectionRect()
+        {
+            dragSelectionCanvas.Visibility = Visibility.Collapsed;
+
+            double x = Canvas.GetLeft(dragSelectionBorder);
+            double y = Canvas.GetTop(dragSelectionBorder);
+            double width = dragSelectionBorder.Width;
+            double height = dragSelectionBorder.Height;
+            Rect dragRect = new Rect(x, y, width, height);
+
+            dragRect.Inflate(width / 10, height / 10);
+
+            mainCanvas.SelectedItems.Clear();
+            
+            foreach (Vertex vert in ViewModelController.ObjectsViewModel.Vertices)
+            {
+                Rect itemRect = new Rect(vert.X, vert.Y, vert.Width ?? ViewModelController.SettingsViewModel.VertexDiameter, vert.Height ?? ViewModelController.SettingsViewModel.VertexDiameter);
+                if (dragRect.Contains(itemRect))
+                    mainCanvas.SelectedItems.Add(vert);
+            }
         }
     }
 }
