@@ -17,7 +17,11 @@
     <Window.Resources>
         <converters:ColorToBrushConverter x:Name="ColorToBrushConverter" x:Key="ColorToBrushConverter"/>
         <DataTemplate DataType="{x:Type vm:Vertex}">
-            <Grid Margin="0">
+            <Grid Margin="0"
+                    MouseDown="Vertex_MouseDown"
+                    MouseUp="Vertex_MouseUp"
+                    MouseMove="Vertex_MouseMove"
+                    Cursor="Hand">
                 <Grid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Изменить цвет" Command="{Binding FillColorChanged}"/>
@@ -25,93 +29,98 @@
                     </ContextMenu>
                 </Grid.ContextMenu>
                 <Ellipse
-                    Width="{DXBinding 'Settings.VertexDiameter'}"
+                    Width="{DXBinding Settings.VertexDiameter}"
                     Height="{DXBinding Settings.VertexDiameter}"
                     Stroke="{DXBinding Settings.VertexStrokeColor, Converter={StaticResource ColorToBrushConverter}}"
                     StrokeThickness="{DXBinding Settings.VertexStrokeSize}"
                     Fill="{DXBinding Settings.VertexFillColor, Converter={StaticResource ColorToBrushConverter}}"
-                    Cursor="Hand"
-                    MouseDown="Vertex_MouseDown"
-                    MouseUp="Vertex_MouseUp"
-                    MouseMove="Vertex_MouseMove"
                     />
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding Name}" 
+                               Foreground="{DXBinding Settings.VertexTextColor, Converter={StaticResource ColorToBrushConverter}}"
+                               FontSize="{DXBinding Settings.VertexTextSize}"/>
+                    <TextBlock HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding Value}" 
+                               Foreground="{DXBinding Settings.VertexTextColor, Converter={StaticResource ColorToBrushConverter}}"
+                               FontSize="{DXBinding Settings.VertexTextSize}" Visibility="{DXBinding Expr='Value.HasValue ? `Visible` : `Collapsed`'}">
+                    </TextBlock>
+                </StackPanel>
             </Grid>
         </DataTemplate>
     </Window.Resources>
     <DockPanel>
-        <DockPanel x:Name="toolPanel"  Height="90" DockPanel.Dock="Top">
-            <Menu DockPanel.Dock="Top" BorderBrush="#FF868686" BorderThickness="0,0,0,1">
-                <MenuItem Header="Файл">
-                    <MenuItem Header="Сохранить" Click="SaveButton_Click"></MenuItem>
-                    <MenuItem Header="Загрузить"></MenuItem>
-                    <Separator/>
-                    <MenuItem Header="Выход"></MenuItem>
-                </MenuItem>
-                <MenuItem Header="Настройки" Click="LoadSettings_Click"></MenuItem>
-                <xctk:DropDownButton x:Name="debugButton" Content="DEBUG" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <Menu DockPanel.Dock="Top" Background="White" BorderBrush="#FF868686" BorderThickness="0,0,0,1">
+            <MenuItem Header="Файл">
+                <MenuItem Header="Сохранить" Click="SaveButton_Click"></MenuItem>
+                <MenuItem Header="Загрузить"></MenuItem>
+                <Separator/>
+                <MenuItem Header="Выход"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Настройки" Click="LoadSettings_Click"></MenuItem>
+            <MenuItem Header="Фигуры">
+                <MenuItem Header="Убрать все соединения" Click="Delete_All_Edges_Click"/>
+                <MenuItem Header="Удалить все фигуры" Click="Delete_All_Objects_Click"/>
+            </MenuItem>
+            <xctk:DropDownButton x:Name="debugButton" Content="DEBUG" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  DropDownPosition="MousePoint">
-                    <xctk:DropDownButton.Style>
-                        <Style TargetType="xctk:DropDownButton">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="BorderBrush" Value="Transparent"/>
-                            <Setter Property="BorderThickness" Value="0"/>
-                        </Style>
-                    </xctk:DropDownButton.Style>
-                    <xctk:DropDownButton.DropDownContent>
-                        <StackPanel>
-                            <Label Content="{Binding CanvasAction}"></Label>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="DEBUG__ADD__VERTEX" Margin="5" Height="20" Click="Debug_Click"/>
-                                <Button Content="DEBUG__ADD__EDGE"   Margin="5" Height="20" Click="Debug_Click_2"/>
-                                <Button Content="DEBUG__SET__VERTEX__BLACK"   Margin="5" Height="20" Click="Debug_Click_3"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <ListBox x:Name="_canvLb" ItemsSource="{Binding ObjectsVm.CanvasObjects}" Margin="10" Width="260" Height="200">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type vm:Vertex}">
-                                            <TextBlock Text="{Binding Value}"></TextBlock>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                                <ListBox x:Name="_edgeLb" ItemsSource="{Binding ObjectsVm.Edges}" Margin="10" Width="260" Height="200"/>
-                                <ListBox x:Name="_vertLb" ItemsSource="{Binding ObjectsVm.Vertices}" Margin="10" Width="260" Height="200"/>
-                            </StackPanel>
-                            <!--<Image gif:ImageBehavior.AnimatedSource="..\Resources\masunyakopkdance.gif"/>-->
-                        </StackPanel>
-                    </xctk:DropDownButton.DropDownContent>
-                </xctk:DropDownButton>
-            </Menu>
-            <!--<Button Content="Сохранить" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,10,10,10" Height="20" Width="68" Click="SaveButton_Click" />
-                <Button Content="Настройки" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Height="20" Width="68" Click="LoadSettings_Click" />-->
-            <WrapPanel DockPanel.Dock="Top" Background="#F5F5F5">
-                <WrapPanel.Resources>
-                    <Style TargetType="{x:Type RadioButton}">
-                        <Setter Property="Margin" Value="5"/>
-                        <Setter Property="Width" Value="40"/>
-                        <Setter Property="Height" Value="40"/>
+                <xctk:DropDownButton.Style>
+                    <Style TargetType="xctk:DropDownButton">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
                     </Style>
-                </WrapPanel.Resources>
-                <!--key Q-->
-                <RadioButton x:Name="addingButton"
+                </xctk:DropDownButton.Style>
+                <xctk:DropDownButton.DropDownContent>
+                    <StackPanel>
+                        <Label Content="{Binding CanvasAction}"></Label>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="DEBUG__ADD__VERTEX" Margin="5" Height="20" Click="Debug_Click"/>
+                            <Button Content="DEBUG__ADD__EDGE"   Margin="5" Height="20" Click="Debug_Click_2"/>
+                            <Button Content="DEBUG__SET__VERTEX__BLACK"   Margin="5" Height="20" Click="Debug_Click_3"/>
+                            <Button Content="DEBUG__SET__VERTEX__VALUE__RAND"   Margin="5" Height="20" Click="Debug_Click_4"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ListBox x:Name="_canvLb" ItemsSource="{Binding ObjectsVm.CanvasObjects}" Margin="10" Width="260" Height="200">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:Vertex}">
+                                        <TextBlock Text="{Binding Value}"></TextBlock>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <ListBox x:Name="_edgeLb" ItemsSource="{Binding ObjectsVm.Edges}" Margin="10" Width="260" Height="200"/>
+                            <ListBox x:Name="_vertLb" ItemsSource="{Binding ObjectsVm.Vertices}" Margin="10" Width="260" Height="200"/>
+                        </StackPanel>
+                        <!--<Image gif:ImageBehavior.AnimatedSource="..\Resources\masunyakopkdance.gif"/>-->
+                    </StackPanel>
+                </xctk:DropDownButton.DropDownContent>
+            </xctk:DropDownButton>
+        </Menu>
+        <WrapPanel DockPanel.Dock="Top" Background="#F5F5F5">
+            <WrapPanel.Resources>
+                <Style TargetType="{x:Type RadioButton}">
+                    <Setter Property="Margin" Value="5"/>
+                    <Setter Property="Width" Value="40"/>
+                    <Setter Property="Height" Value="40"/>
+                </Style>
+            </WrapPanel.Resources>
+            <!--key Q-->
+            <RadioButton x:Name="addingButton"
                     Style="{StaticResource {x:Type ToggleButton}}" Width="40" Height="40" Margin="5" Padding="0" ToolTip="Добавить (Й)" Content="{StaticResource ButtonAdd}" 
-                    Command="{Binding CanvasActionChangeCommand}" CommandParameter="Adding"/>
-                <!--key W-->
-                <RadioButton x:Name="movingButton"
+                    Command="{Binding CanvasActionChangeCommand}" CommandParameter="Adding" Click="SwitchCanvas_Click"/>
+            <!--key W-->
+            <RadioButton x:Name="movingButton"
                     Style="{StaticResource {x:Type ToggleButton}}" Width="40" Height="40" Margin="5" Padding="0" ToolTip="Переместить (Ц)" Content="{StaticResource ButtonMove}" 
-                    Command="{Binding CanvasActionChangeCommand}" CommandParameter="Moving"
+                    Command="{Binding CanvasActionChangeCommand}" CommandParameter="Moving" Click="SwitchCanvas_Click"
                     IsChecked="True"/>
-                <!--key E-->
-                <RadioButton x:Name="connectingButton"
+            <!--key E-->
+            <RadioButton x:Name="connectingButton"
                     Style="{StaticResource {x:Type ToggleButton}}" Width="40" Height="40" Margin="5" Padding="0" ToolTip="Соединить (У)" Content="{StaticResource ButtonConnect}"
-                    Command="{Binding CanvasActionChangeCommand}" CommandParameter="Connecting"/>
-                <!--key R-->
-                <RadioButton x:Name="deletingButton"
+                    Command="{Binding CanvasActionChangeCommand}" CommandParameter="Connecting" Click="SwitchCanvas_Click"/>
+            <!--key R-->
+            <RadioButton x:Name="deletingButton"
                     Style="{StaticResource {x:Type ToggleButton}}" Width="40" Height="40" Margin="5" Padding="0" ToolTip="Удалить (К)" Content="{StaticResource ButtonDelete}"
-                    Command="{Binding CanvasActionChangeCommand}" CommandParameter="Deleting"/>
-                <!--<Button Width="20" Height="20" Margin="2" Padding="0" ToolTip="Изменить" Content="{StaticResource ButtonChange}"></Button>-->
-            </WrapPanel>
-
-        </DockPanel>
+                    Command="{Binding CanvasActionChangeCommand}" CommandParameter="Deleting" Click="SwitchCanvas_Click"/>
+            <!--<Button Width="20" Height="20" Margin="2" Padding="0" ToolTip="Изменить" Content="{StaticResource ButtonChange}"></Button>-->
+        </WrapPanel>
         <Grid>
             <ListBox x:Name="mainCanvas" 
                      Background="#CCC" 

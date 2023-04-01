@@ -66,10 +66,14 @@ namespace Graph_Constructor_FLP.ViewModel
     {
         #region Fields
         ObservableCollection<CanvasObj> _canvasObjects = new();
+        //Dictionary<int,string> _stringObjects = new();
+        int _counterVerts = 1;
+        int _counterEdges = 1;
         #endregion
 
         #region Properties
         public ObservableCollection<CanvasObj> CanvasObjects => _canvasObjects;
+        public ObservableCollection<CanvasObj> VerticesNames => _canvasObjects;
         public ObservableCollection<Vertex> Vertices => CanvasObjects
                 .Where(x => x as Vertex != null)
                 .Cast<Vertex>()
@@ -93,6 +97,26 @@ namespace Graph_Constructor_FLP.ViewModel
                     nameof(Vertices),
                     nameof(Edges)
                 );
+
+
+                switch (ev.Action)
+                {
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                        {
+                            foreach (var item in ev.NewItems)
+                            {
+                                if (item is Vertex v)
+                                    v.Name ??= $"X{_counterVerts++}";
+                                if (item is Edge e)
+                                    e.Name ??= $"U{_counterVerts++}";
+                            }
+                        }
+                        break;
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                        break;
+                    default:
+                        break;
+                }
 
                 //foreach (var item in CanvasObjects)
                 //    if (item is Vertex vertex)
@@ -127,23 +151,23 @@ namespace Graph_Constructor_FLP.ViewModel
         }
         public double? Width
         {
-            get => GetValue<double>();
+            get => GetValue<double?>();
             set => SetValue(value);
         }
         public double? Height
         {
-            get => GetValue<double>(); 
+            get => GetValue<double?>(); 
             set => SetValue(value);
         }
         public Color? StrokeColor// => Settings.EdgeStrokeColor;
         {
-            get => GetValue<Color>();
+            get => GetValue<Color?>();
             set => SetValue(value);
         }
 
         public double? StrokeThickness //=> Settings.EdgeStrokeSize;
         {
-            get => GetValue<double>();
+            get => GetValue<double?>();
             set => SetValue(value);
         }
 
@@ -186,7 +210,7 @@ namespace Graph_Constructor_FLP.ViewModel
 
         public double? Value
         {
-            get => GetValue<double>();
+            get => GetValue<double?>();
             set => SetValue(value); 
         }
 
@@ -203,7 +227,10 @@ namespace Graph_Constructor_FLP.ViewModel
 
         #region Methods
 
-        public virtual void Init() { }
+        public virtual void Init() 
+        {
+            Value = null;
+        }
 
         #endregion
 
@@ -242,7 +269,7 @@ namespace Graph_Constructor_FLP.ViewModel
 
         public Color? FillColor
         {
-            get => GetValue<Color>();
+            get => GetValue<Color?>();
             set => SetValue(value);
         }
         public DelegateCommand<Color> FillColorChanged { get; private set; }
@@ -261,6 +288,7 @@ namespace Graph_Constructor_FLP.ViewModel
 
         public override void Init()
         {
+            base.Init();
             FillColorChanged = new DelegateCommand<Color>(FillColorChange);
             SettingStandardFillColor = new DelegateCommand(SetStandardFillColor);
         }
@@ -277,6 +305,15 @@ namespace Graph_Constructor_FLP.ViewModel
         public Vertex(Point begin, Point end) : base(begin, end) => Init();
 
         public Vertex() : base() => Init();
+
+
+        public Vertex(double x, double y, double width, double height, string name) : this(x, y, width, height) => Name = name;
+
+        public Vertex(double x, double y, Size size, string name) : this(x, y, size) => Name = name;
+
+        public Vertex(Point begin, Point end, string name) : this(begin, end) => Name = name;
+
+        public Vertex(string name) : this() => Name = name;
     }
 
     class Edge : CanvasObj

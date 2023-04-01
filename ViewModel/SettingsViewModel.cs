@@ -55,6 +55,34 @@ namespace Graph_Constructor_FLP.ViewModel
             set { SetValue(value); }
         }
 
+        // Text
+        // Vertex
+        public Color VertexTextColor
+        {
+            get { return GetValue<Color>(); }
+            set { SetValue(value); }
+        }
+
+        public double VertexTextSize
+        {
+            get { return GetValue<double>(); }
+            set { SetValue(value); }
+        }
+
+        // Edge
+        public Color EdgeTextColor
+        {
+            get { return GetValue<Color>(); }
+            set { SetValue(value); }
+        }
+
+        public double EdgeTextSize
+        {
+            get { return GetValue<double>(); }
+            set { SetValue(value); }
+        }
+
+
         public SettingsViewModel()
         { 
             VertexFillColor = Color.FromRgb(0xAB, 0xCB, 0x51); // #ABCB51
@@ -64,6 +92,13 @@ namespace Graph_Constructor_FLP.ViewModel
 
             EdgeStrokeColor = Colors.Black;
             EdgeStrokeSize = 1;
+
+
+            VertexTextColor = Colors.White;
+            VertexTextSize = 10;
+            
+            EdgeTextColor = Colors.White;
+            EdgeTextSize = 10;
 
             IsAskingForDelete = true;
         }
