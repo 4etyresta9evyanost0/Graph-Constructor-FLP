@@ -9,7 +9,7 @@ using System.Windows.Media;
 
 namespace Graph_Constructor_FLP.ViewModel
 {
-    class SettingsViewModel : ViewModel
+    public class SettingsViewModel : ViewModel
     {
         // Vertex
         public Color VertexFillColor
@@ -49,14 +49,7 @@ namespace Graph_Constructor_FLP.ViewModel
             set { SetValue(value); }
         }
 
-        public bool IsAskingForDelete
-        {
-            get { return GetValue<bool>(); }
-            set { SetValue(value); }
-        }
-
-        // Text
-        // Vertex
+        // Text Vertex
         public Color VertexTextColor
         {
             get { return GetValue<Color>(); }
@@ -69,7 +62,7 @@ namespace Graph_Constructor_FLP.ViewModel
             set { SetValue(value); }
         }
 
-        // Edge
+        // Text Edge
         public Color EdgeTextColor
         {
             get { return GetValue<Color>(); }
@@ -82,6 +75,19 @@ namespace Graph_Constructor_FLP.ViewModel
             set { SetValue(value); }
         }
 
+        // App
+        public bool IsAskingForDelete
+        {
+            get { return GetValue<bool>(); }
+            set { SetValue(value); }
+        }
+
+        public Color CanvasBackgroundColor
+        {
+            get { return GetValue<Color>(); }
+            set { SetValue(value); }
+        }
+
 
         public SettingsViewModel()
         { 
@@ -91,7 +97,7 @@ namespace Graph_Constructor_FLP.ViewModel
             VertexStrokeSize = 1;
 
             EdgeStrokeColor = Colors.Black;
-            EdgeStrokeSize = 1;
+            EdgeStrokeSize = 2.5;
 
 
             VertexTextColor = Colors.White;
@@ -101,6 +107,8 @@ namespace Graph_Constructor_FLP.ViewModel
             EdgeTextSize = 10;
 
             IsAskingForDelete = true;
+
+            CanvasBackgroundColor = Color.FromRgb(0xCC, 0xCC, 0xCC);
         }
     }
 }

@@ -13,10 +13,12 @@ using System.Windows.Media.Media3D;
 using DevExpress.Mvvm.DataAnnotations;
 using System.Windows.Data;
 using DevExpress.Xpf.DXBinding;
+using Graph_Constructor_FLP.Windows;
+using MaterialDesignThemes.Wpf;
 
 namespace Graph_Constructor_FLP.ViewModel
 {
-    enum CanvasAction
+    public enum CanvasAction
     {
         Adding,
         Moving,
@@ -24,7 +26,7 @@ namespace Graph_Constructor_FLP.ViewModel
         Deleting
     }
 
-    class ApplicationViewModel : ViewModel
+    public class ApplicationViewModel : ViewModel
     {
         #region Fields
 
@@ -34,7 +36,16 @@ namespace Graph_Constructor_FLP.ViewModel
         // Vm's
         public ObjectsViewModel ObjectsVm => ViewModelController.ObjectsViewModel;
         public SettingsViewModel Settings => ViewModelController.SettingsViewModel;
-
+        public Point MousePosWnd 
+        { 
+            get => GetValue<Point>(); 
+            set => SetValue(value); 
+        }
+        public Point MousePosCanv 
+        {
+            get => GetValue<Point>();
+            set => SetValue(value);
+        }
         public bool IsDebug => ((App)Application.Current).IsDebug;
 
         public CanvasAction CanvasAction
@@ -62,13 +73,13 @@ namespace Graph_Constructor_FLP.ViewModel
 
     }
 
-    class ObjectsViewModel : ViewModel
+    public class ObjectsViewModel : ViewModel
     {
         #region Fields
         ObservableCollection<CanvasObj> _canvasObjects = new();
         //Dictionary<int,string> _stringObjects = new();
-        int _counterVerts = 1;
-        int _counterEdges = 1;
+        protected internal int _counterVerts = 1;
+        protected internal int _counterEdges = 1;
         #endregion
 
         #region Properties
@@ -108,7 +119,7 @@ namespace Graph_Constructor_FLP.ViewModel
                                 if (item is Vertex v)
                                     v.Name ??= $"X{_counterVerts++}";
                                 if (item is Edge e)
-                                    e.Name ??= $"U{_counterVerts++}";
+                                    e.Name ??= $"U{_counterEdges++}";
                             }
                         }
                         break;
@@ -128,7 +139,7 @@ namespace Graph_Constructor_FLP.ViewModel
     }
 
     [POCOViewModel()]
-    abstract class CanvasObj : BindableBase
+    public abstract class CanvasObj : BindableBase
     {
         #region Fields
         //double _x = 0;
@@ -142,22 +153,38 @@ namespace Graph_Constructor_FLP.ViewModel
         public double X
         {
             get => GetValue<double>();
-            set => SetValue(value);
+            set
+            {
+                SetValue(value);
+                RaisePropertyChanged(nameof(Center));
+            }
         }
         public double Y
         {
             get => GetValue<double>();
-            set => SetValue(value);
+            set
+            {
+                SetValue(value);
+                RaisePropertyChanged(nameof(Center));
+            }
         }
         public double? Width
         {
             get => GetValue<double?>();
-            set => SetValue(value);
+            set
+            {
+                SetValue(value);
+                RaisePropertyChanged(nameof(Center));
+            }
         }
         public double? Height
         {
-            get => GetValue<double?>(); 
-            set => SetValue(value);
+            get => GetValue<double?>();
+            set
+            {
+                SetValue(value);
+                RaisePropertyChanged(nameof(Center));
+            }
         }
         public Color? StrokeColor// => Settings.EdgeStrokeColor;
         {
@@ -180,7 +207,7 @@ namespace Graph_Constructor_FLP.ViewModel
                 Height = value.Height;
             }
         }
-        public Point Begin
+        public virtual Point Begin
         {
             get => new(X, Y);
             set
@@ -189,16 +216,15 @@ namespace Graph_Constructor_FLP.ViewModel
                 Y = value.Y;
             }
         }
-        public Point End
+        public virtual Point End
         {
-            get => new(X + Width ?? 0, Y + Height ?? 0);
+            get => new(Width ?? 0, Height ?? 0);
             set
             {
-                Width = X - value.X;
-                Height = Y - value.Y;
+                Width = value.X;
+                Height = value.Y;
             }
         }
-
 
         public string Name
         {
@@ -214,9 +240,15 @@ namespace Graph_Constructor_FLP.ViewModel
             set => SetValue(value); 
         }
 
-        //public UIElement UIElement
+        public virtual Point Center
+        {
+            get { return new(X + (Width ?? 0) / 2, Y + (Height ?? 0) / 2); }
+            set { X = value.X; Y = value.Y;}
+        }
+
+        //public FrameworkElement FrameworkElement
         //{
-        //    get => GetValue<UIElement>();
+        //    get => GetValue<FrameworkElement>();
         //    set => SetValue(value);
         //}
 
@@ -258,7 +290,7 @@ namespace Graph_Constructor_FLP.ViewModel
         } 
     }
 
-    class Vertex : CanvasObj
+    public class Vertex : CanvasObj
     {
         #region Fields
         readonly ObservableCollection<Edge> _edges = new();
@@ -272,9 +304,27 @@ namespace Graph_Constructor_FLP.ViewModel
             get => GetValue<Color?>();
             set => SetValue(value);
         }
-        public DelegateCommand<Color> FillColorChanged { get; private set; }
 
+        public override Point End
+        {
+            get => new(X + Settings.VertexDiameter, Y + Settings.VertexDiameter);
+            //set
+            //{
+            //    Width = X - value.X;
+            //    Height = Y - value.Y;
+            //}
+        }
+
+        public Point Center
+        {
+            get { return new(X + Settings.VertexDiameter / 2 + 2, Y + Settings.VertexDiameter / 2 + 2); }
+        }
+
+        //public DelegateCommand<Color> FillColorChanged { get; private set; }
+        public DelegateCommand<Vertex> ChangeCommand { get; private set; }
         public DelegateCommand SettingStandardFillColor { get; private set; }
+        public DelegateCommand MoveOnTopCommand { get; private set; }
+        public DelegateCommand MoveOnBottomCommand { get; private set; }
 
         //public double StrokeThickness => SettingsVm.VertexDiameter;
         //{
@@ -289,10 +339,44 @@ namespace Graph_Constructor_FLP.ViewModel
         public override void Init()
         {
             base.Init();
-            FillColorChanged = new DelegateCommand<Color>(FillColorChange);
+            //FillColorChanged = new DelegateCommand<Color>(FillColorChange);
             SettingStandardFillColor = new DelegateCommand(SetStandardFillColor);
+
+            ChangeCommand = new DelegateCommand<Vertex>(ShowChangeWindow);
+            MoveOnTopCommand = new DelegateCommand(MoveOnTop);
+            MoveOnBottomCommand = new DelegateCommand(MoveOnBottom);
         }
 
+        public void MoveOnTop()
+        {
+            var last = (Vertex)AppVm.ObjectsVm.CanvasObjects.Last(x => x is Vertex);
+            var vertVmIndex = AppVm.ObjectsVm.CanvasObjects.IndexOf(this);
+            var lastIndex = AppVm.ObjectsVm.CanvasObjects.IndexOf(last);
+            AppVm.ObjectsVm.CanvasObjects.Swap(vertVmIndex, lastIndex);
+        }
+
+        public void MoveOnBottom()
+        {
+            var first = (Vertex)AppVm.ObjectsVm.CanvasObjects.First(x => x is Vertex);
+            var vertVmIndex = AppVm.ObjectsVm.CanvasObjects.IndexOf(this);
+            var firstIndex = AppVm.ObjectsVm.CanvasObjects.IndexOf(first);
+            AppVm.ObjectsVm.CanvasObjects.Swap(vertVmIndex, firstIndex);
+        }
+
+        [Command]
+        public void ShowChangeWindow(Vertex parameter)
+        {
+            ChangeVertexWindow wind = new(parameter);
+
+            var n = parameter.Name;
+            var v = parameter.Value;
+
+            if (wind.ShowDialog() != true)
+            {
+                parameter.Name = n;
+                parameter.Value = v;
+            }
+        }
 
         public void FillColorChange(Color color) => FillColor = color;
         public void SetStandardFillColor() => FillColor = null;
@@ -316,24 +400,58 @@ namespace Graph_Constructor_FLP.ViewModel
         public Vertex(string name) : this() => Name = name;
     }
 
-    class Edge : CanvasObj
+    public class Edge : CanvasObj
     {
         #region Fields
-        readonly ObservableCollection<Vertex> _vertices = new();
+        //readonly ObservableCollection<Vertex> _vertices = new(new List<Vertex>(2));
         #endregion
 
         #region Properties
-        public (Vertex begin, Vertex end) Vertices => (_vertices[0], _vertices[1]);
+        //public (Vertex begin, Vertex end) Vertices
+        //{
+        //    get
+        //    {
+        //        return (_vertices[0], _vertices[1]);
+        //    }
+        //    set
+        //    {
+        //        (_vertices[0], _vertices[1]) = value;
+        //    }
+        //}
 
+        public Vertex VertBegin
+        {
+            get => GetValue<Vertex>();
+            set => SetValue(value);
+        }
+
+        public Vertex VertEnd
+        {
+            get => GetValue<Vertex>();
+            set => SetValue(value);
+        }
+
+        public override Point End 
+        {
+            get => new(Width ?? 0, Height ?? 0);
+            set
+            {
+                Width = value.X;
+                Height = value.Y;
+            }
+        }
         #endregion
 
         #region Methods
         public override void Init()
         {
-            _vertices.CollectionChanged += (x, ev) =>
-            {
-                RaisePropertyChanged(() => Vertices);
-            };
+            //_vertices.CollectionChanged += (x, ev) =>
+            //{
+            //    RaisePropertiesChanged(
+            //        nameof(Vertices),
+            //        nameof(Begin),
+            //        nameof(End));
+            //};
         }
         #endregion
 
@@ -345,8 +463,8 @@ namespace Graph_Constructor_FLP.ViewModel
 
         public Edge(Vertex begin, Vertex end)
         {
-            _vertices[0] = begin;
-            _vertices[1] = end;
+            VertBegin = begin;
+            VertEnd = end;
         }
     }
 }

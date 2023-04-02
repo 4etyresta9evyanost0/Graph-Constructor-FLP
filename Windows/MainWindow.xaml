@@ -7,6 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:vm="clr-namespace:Graph_Constructor_FLP.ViewModel"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:Graph_Constructor_FLP.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" DataContext="{DynamicResource applicationVm}" KeyDown="Window_KeyDown">
@@ -16,36 +17,6 @@
         xmlns:metro="http://metro.mahapps.com/winfx/xaml/controls"-->
     <Window.Resources>
         <converters:ColorToBrushConverter x:Name="ColorToBrushConverter" x:Key="ColorToBrushConverter"/>
-        <DataTemplate DataType="{x:Type vm:Vertex}">
-            <Grid Margin="0"
-                    MouseDown="Vertex_MouseDown"
-                    MouseUp="Vertex_MouseUp"
-                    MouseMove="Vertex_MouseMove"
-                    Cursor="Hand">
-                <Grid.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Изменить цвет" Command="{Binding FillColorChanged}"/>
-                        <MenuItem Header="Стандартный цвет" Command="{Binding SettingStandardFillColor}"/>
-                    </ContextMenu>
-                </Grid.ContextMenu>
-                <Ellipse
-                    Width="{DXBinding Settings.VertexDiameter}"
-                    Height="{DXBinding Settings.VertexDiameter}"
-                    Stroke="{DXBinding Settings.VertexStrokeColor, Converter={StaticResource ColorToBrushConverter}}"
-                    StrokeThickness="{DXBinding Settings.VertexStrokeSize}"
-                    Fill="{DXBinding Settings.VertexFillColor, Converter={StaticResource ColorToBrushConverter}}"
-                    />
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding Name}" 
-                               Foreground="{DXBinding Settings.VertexTextColor, Converter={StaticResource ColorToBrushConverter}}"
-                               FontSize="{DXBinding Settings.VertexTextSize}"/>
-                    <TextBlock HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding Value}" 
-                               Foreground="{DXBinding Settings.VertexTextColor, Converter={StaticResource ColorToBrushConverter}}"
-                               FontSize="{DXBinding Settings.VertexTextSize}" Visibility="{DXBinding Expr='Value.HasValue ? `Visible` : `Collapsed`'}">
-                    </TextBlock>
-                </StackPanel>
-            </Grid>
-        </DataTemplate>
     </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="White" BorderBrush="#FF868686" BorderThickness="0,0,0,1">
@@ -60,39 +31,7 @@
                 <MenuItem Header="Убрать все соединения" Click="Delete_All_Edges_Click"/>
                 <MenuItem Header="Удалить все фигуры" Click="Delete_All_Objects_Click"/>
             </MenuItem>
-            <xctk:DropDownButton x:Name="debugButton" Content="DEBUG" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                 DropDownPosition="MousePoint">
-                <xctk:DropDownButton.Style>
-                    <Style TargetType="xctk:DropDownButton">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderBrush" Value="Transparent"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                    </Style>
-                </xctk:DropDownButton.Style>
-                <xctk:DropDownButton.DropDownContent>
-                    <StackPanel>
-                        <Label Content="{Binding CanvasAction}"></Label>
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="DEBUG__ADD__VERTEX" Margin="5" Height="20" Click="Debug_Click"/>
-                            <Button Content="DEBUG__ADD__EDGE"   Margin="5" Height="20" Click="Debug_Click_2"/>
-                            <Button Content="DEBUG__SET__VERTEX__BLACK"   Margin="5" Height="20" Click="Debug_Click_3"/>
-                            <Button Content="DEBUG__SET__VERTEX__VALUE__RAND"   Margin="5" Height="20" Click="Debug_Click_4"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ListBox x:Name="_canvLb" ItemsSource="{Binding ObjectsVm.CanvasObjects}" Margin="10" Width="260" Height="200">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type vm:Vertex}">
-                                        <TextBlock Text="{Binding Value}"></TextBlock>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <ListBox x:Name="_edgeLb" ItemsSource="{Binding ObjectsVm.Edges}" Margin="10" Width="260" Height="200"/>
-                            <ListBox x:Name="_vertLb" ItemsSource="{Binding ObjectsVm.Vertices}" Margin="10" Width="260" Height="200"/>
-                        </StackPanel>
-                        <!--<Image gif:ImageBehavior.AnimatedSource="..\Resources\masunyakopkdance.gif"/>-->
-                    </StackPanel>
-                </xctk:DropDownButton.DropDownContent>
-            </xctk:DropDownButton>
+            <MenuItem x:Name="debugButton" Header="DEBUG" Click="OpenDebug_Click" Visibility="Collapsed"/>
         </Menu>
         <WrapPanel DockPanel.Dock="Top" Background="#F5F5F5">
             <WrapPanel.Resources>
@@ -123,7 +62,7 @@
         </WrapPanel>
         <Grid>
             <ListBox x:Name="mainCanvas" 
-                     Background="#CCC" 
+                     Background="{Binding Settings.CanvasBackgroundColor, Converter={StaticResource ColorToBrushConverter}}" 
                      BorderBrush="Black" 
                      BorderThickness="0,1,0,0" 
                      DockPanel.Dock="Top" 
@@ -132,73 +71,242 @@
                      MouseMove="Canvas_MouseMove" 
                      MouseUp="Canvas_MouseUp"
                      SelectionMode="Extended">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBox.ItemContainerStyle>
-                    <Style
-                        TargetType="ListBoxItem"
-                        >
-                        <Setter
-                            Property="Canvas.Left"
-                            Value="{Binding X}"
+                <ListBox.Resources>
+                    <DataTemplate DataType="{x:Type vm:Vertex}">
+                        <Grid Margin="0"
+                                MouseDown="Vertex_MouseDown"
+                                MouseUp="Vertex_MouseUp"
+                                MouseMove="Vertex_MouseMove"
+                                Cursor="Hand">
+                            <Grid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Изменить вершину" Command="{Binding ChangeCommand}" CommandParameter="{DXBinding '@p.DataContext'}"/>
+                                    <MenuItem Header="На передний план" Command="{Binding MoveOnTopCommand}"/>
+                                    <MenuItem Header="На задний план" Command="{Binding MoveOnBottomCommand}"/>
+                                </ContextMenu>
+                            </Grid.ContextMenu>
+                            <Ellipse
+                            Width="{DXBinding Settings.VertexDiameter}"
+                            Height="{DXBinding Settings.VertexDiameter}"
+                            Stroke="{DXBinding Settings.VertexStrokeColor, Converter={StaticResource ColorToBrushConverter}}"
+                            StrokeThickness="{DXBinding Settings.VertexStrokeSize}"
+                            Fill="{DXBinding Settings.VertexFillColor, Converter={StaticResource ColorToBrushConverter}}"
                             />
-                        <Setter
-                            Property="Canvas.Top"
-                            Value="{Binding Y}"
-                            />
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding Name}" 
+                               Foreground="{DXBinding Settings.VertexTextColor, Converter={StaticResource ColorToBrushConverter}}"
+                               FontSize="{DXBinding Settings.VertexTextSize}"/>
+                                <!-- MaxWidth="{DXBinding '@p($StackPAnel).ActualWidth'}"
+                               MaxHeight="{DXBinding '@p($StackPAnel).ActualHeight'}"-->
+                                <xctk:WatermarkTextBox HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding Value}"
+                                     BorderBrush="{x:Null}" BorderThickness="0" Background="{x:Null}"
+                                     Foreground="{DXBinding Settings.VertexTextColor, Converter={StaticResource ColorToBrushConverter}}"
+                                     FontSize="{DXBinding Settings.VertexTextSize}" Watermark="Значение" PreviewKeyDown="WatermarkTextBox_PreviewKeyDown" AcceptsReturn="False"
+                                     IsEnabled="{DXBinding Expr='(int)AppVm.CanvasAction == 1'}">
+                                    <!--<xctk:WatermarkTextBox.Style>
+                                        <Style>
+                                            <Style.Triggers>
+                                                <DataTrigger 
+                                            </Style.Triggers>
+                                        </Style>
+                                    </xctk:WatermarkTextBox.Style>-->
+                                </xctk:WatermarkTextBox>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+
+                    <DataTemplate DataType="{x:Type vm:Edge}">
+                        <Grid Margin="0" x:Name="Grid"
+                            MouseDown="Edge_MouseDown"
+                            MouseUp="Edge_MouseUp"
+                            MouseMove="Edge_MouseMove"
+                            Cursor="Hand">
+                            <Grid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Изменить ребро"/>
+                                </ContextMenu>
+                            </Grid.ContextMenu>
+                            <Line x:Name="MainLine"
+                            X1="{DXBinding 'VertBegin != null ? VertBegin.Center.X : X'}"
+                            Y1="{DXBinding 'VertBegin != null ? VertBegin.Center.Y : Y'}"
+                            X2="{DXBinding 'VertEnd != null ? VertEnd.Center.X : Width'}"
+                            Y2="{DXBinding 'VertEnd != null ? VertEnd.Center.Y : Height'}"
+                            Stroke="{DXBinding Settings.EdgeStrokeColor, Converter={StaticResource ColorToBrushConverter}}"
+                            StrokeStartLineCap="Triangle"
+                            StrokeEndLineCap="Triangle"
+                            StrokeThickness="{DXBinding Settings.EdgeStrokeSize}"/><!--StrokeDashCap в Settings?-->
+                        <!--<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <xctk:WatermarkTextBox HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding Value}"
+                                            BorderBrush="{x:Null}" BorderThickness="0" Background="{x:Null}"
+                                            Foreground="{DXBinding Settings.EdgeTextColor, Converter={StaticResource ColorToBrushConverter}}"
+                                            FontSize="{DXBinding Settings.EdgeTextSize}" Watermark="Значение">
+                                </xctk:WatermarkTextBox>
+                            </StackPanel>-->
+                        </Grid>
+                    </DataTemplate>
+
+
+                    <Style TargetType="ListBoxItem">
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
-                                    <Border 
-                                        Name="Border"
-                                        BorderThickness="1"
-                                        Padding="2">
-                                        <ContentPresenter />
+                                    <Border Name="Border">
+                                        <Grid>
+                                            <Line x:Name="BorderLine"
+                                            X1="{Binding X}"
+                                            Y1="{Binding Y}"
+                                            X2="{Binding Width}"
+                                            Y2="{Binding Height}"
+                                            StrokeStartLineCap="Round"
+                                            StrokeEndLineCap="Round"
+                                            StrokeThickness="{DXBinding Expr='Settings.EdgeStrokeSize + 9'}"/>
+                                            <Line x:Name="BorderLinePadding"
+                                            X1="{Binding X}"
+                                            Y1="{Binding Y}"
+                                            X2="{Binding Width}"
+                                            Y2="{Binding Height}"
+                                            StrokeStartLineCap="Round"
+                                            StrokeEndLineCap="Round"
+                                            StrokeThickness="{DXBinding Expr='Settings.EdgeStrokeSize + 8'}"/>
+                                            <ContentPresenter Name="ContentPresenter"/>
+                                        </Grid>
                                     </Border>
                                     <ControlTemplate.Triggers>
-                                        <!--When the ListBoxItem is selected draw a simple blue border around it.-->
-                                        <Trigger Property="IsSelected" Value="true">
-                                            <Setter 
+                                        <!--Vertex-->
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{DXBinding Expr='@s.DataContext.GetType()'}" Value="{x:Type vm:Vertex}"/>
+                                                <Condition Binding="{DXBinding '@s.IsSelected'}" Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter 
                                                 TargetName="Border" 
                                                 Property="BorderBrush"
                                                 Value="#3e61c2"/>
-                                            <Setter 
+                                                <Setter 
                                                 TargetName="Border" 
                                                 Property="Background"
                                                 Value="LightBlue"/>
-                                            <Setter 
+                                                <Setter 
                                                 TargetName="Border" 
                                                 Property="CornerRadius"
                                                 Value="2"/>
-                                        </Trigger>
-                                        <Trigger Property="IsMouseOver" Value="true">
-                                            <Setter 
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{DXBinding Expr='@s.DataContext.GetType()'}" Value="{x:Type vm:Vertex}"/>
+                                                <Condition Binding="{DXBinding '@s.IsMouseOver'}" Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter 
                                                 TargetName="Border" 
                                                 Property="BorderBrush"
                                                 Value="#3e61c2"/>
-                                            <Setter 
+                                                <Setter 
                                                 TargetName="Border" 
                                                 Property="Background"
                                                 Value="LightBlue"/>
-                                            <Setter 
+                                                <Setter 
                                                 TargetName="Border" 
                                                 Property="Opacity"
                                                 Value="0.5"/>
-                                            <Setter 
+                                                <Setter 
                                                 TargetName="Border" 
                                                 Property="CornerRadius"
                                                 Value="2"/>
-                                        </Trigger>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                        <DataTrigger Binding="{DXBinding Expr='@s.DataContext.GetType()'}" Value="{x:Type vm:Vertex}">
+                                            <Setter
+                                            Property="Canvas.Left"
+                                            Value="{Binding X}"/>
+                                            <Setter
+                                            Property="Canvas.Top"
+                                            Value="{Binding Y}"/>
+                                            <Setter
+                                            TargetName="Border"
+                                            Property="Padding"
+                                            Value="2"/>
+                                            <Setter
+                                            TargetName="Border"
+                                            Property="BorderThickness"
+                                            Value="1"/>
+                                            <Setter
+                                            TargetName="BorderLine"
+                                            Property="Visibility"
+                                            Value="Collapsed"/>
+                                            <Setter
+                                            TargetName="BorderLinePadding"
+                                            Property="Visibility"
+                                            Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <!--Edge-->
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{DXBinding Expr='@s.DataContext.GetType()'}" Value="{x:Type vm:Edge}"/>
+                                                <Condition Binding="{DXBinding '@s.IsSelected'}" Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter
+                                                TargetName="BorderLine"
+                                                Property="Stroke"
+                                                Value="#3e61c2"/>
+                                                <Setter
+                                                TargetName="BorderLinePadding"
+                                                Property="Stroke"
+                                                Value="LightBlue"/>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{DXBinding Expr='@s.DataContext.GetType()'}" Value="{x:Type vm:Edge}"/>
+                                                <Condition Binding="{DXBinding '@s.IsMouseOver'}" Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter 
+                                                TargetName="Border" 
+                                                Property="Opacity"
+                                                Value="0.5"/>
+                                                <Setter
+                                                TargetName="BorderLine"
+                                                Property="Stroke"
+                                                Value="#3e61c2"/>
+                                                <Setter
+                                                TargetName="BorderLinePadding"
+                                                Property="Stroke"
+                                                Value="LightBlue"/>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                        <DataTrigger Binding="{DXBinding Expr='@s.DataContext.GetType()'}" Value="{x:Type vm:Edge}">
+                                            <Setter
+                                            TargetName="Border"
+                                            Property="Padding"
+                                            Value="0"/>
+                                            <!--<Setter
+                                            TargetName="BorderLine"
+                                            Property="Visibility"
+                                            Value="Collapsed"/>
+                                            <Setter
+                                            TargetName="BorderLinePadding"
+                                            Property="Visibility"
+                                            Value="Collapsed"/>-->
+                                        </DataTrigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
                         <!---->
                     </Style>
-                </ListBox.ItemContainerStyle>
+                </ListBox.Resources>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <!--<ListBox.ItemContainerStyle>
+                    
+                </ListBox.ItemContainerStyle>-->
             </ListBox>
             <!--
         This Canvas and Border are used as a very simple way to render a drag selection rectangle.

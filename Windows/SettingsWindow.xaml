@@ -6,10 +6,10 @@
         xmlns:local="clr-namespace:Graph_Constructor_FLP"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="SettingsWindow" Height="378" Width="449"
+        Title="SettingsWindow" Height="378" Width="731"
         Closing="Window_Closing" ResizeMode="NoResize"
         DataContext="{DynamicResource settingsVm}">
-    <DockPanel Background="#AAA">
+    <DockPanel Background="#CCC">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
             <StackPanel>
                 <StackPanel.Resources>
@@ -116,6 +116,21 @@
                     <Label Margin="2" Padding="0" Content="Размер текста рёбер"/>
                 </StackPanel>
 
+            </StackPanel>
+            <StackPanel>
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Margin" Value="10,10,10,0"/>
+                    </Style>
+                </StackPanel.Resources>
+
+                <StackPanel 
+                    Orientation="Horizontal"
+                    VerticalAlignment="Top" 
+                    HorizontalAlignment="Left">
+                    <xctk:ColorPicker Width="72" SelectedColor="{Binding CanvasBackgroundColor, Mode=TwoWay}"/>
+                    <Label Margin="2" Padding="0" Content="Цвет заднего фона"/>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
         <DockPanel Margin="0,20,0,0">

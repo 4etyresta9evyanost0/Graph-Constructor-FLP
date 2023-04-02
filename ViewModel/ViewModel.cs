@@ -11,7 +11,7 @@ using DevExpress.Mvvm.DataAnnotations;
 namespace Graph_Constructor_FLP.ViewModel
 {
     [POCOViewModel()]
-    abstract class ViewModel : ViewModelBase
+    public abstract class ViewModel : ViewModelBase
     {
         #region Data Members
         ///

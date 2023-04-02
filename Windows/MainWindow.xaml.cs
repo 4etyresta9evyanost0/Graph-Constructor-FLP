@@ -23,12 +23,14 @@ using DevExpress.Mvvm.ModuleInjection.Native;
 
 namespace Graph_Constructor_FLP
 {
-    
-    
-    
+
+
+
     public partial class MainWindow : Window
     {
         SettingsWindow _settingsWindow;
+
+        DEBUG_Window _debugWindow;
         ApplicationViewModel AppVm => ViewModelController.ApplicationViewModel;
         ObjectsViewModel ObjVm => ViewModelController.ObjectsViewModel;
         SettingsViewModel Settings => ViewModelController.SettingsViewModel;
@@ -36,16 +38,36 @@ namespace Graph_Constructor_FLP
         public MainWindow()
         {
             InitializeComponent();
+
+            //Closing += (x, ev) =>
+            //{
+            //    OnClosingDialogWindow wind = new OnClosingDialogWindow();
+            //    if (wind.ShowDialog() == false)
+            //    {
+            //        ev.Cancel = true;
+            //    }
+            //};
+
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             _settingsWindow = new();
-            debugButton.Visibility = AppVm.IsDebug ? Visibility.Visible : Visibility.Collapsed;
+            if (AppVm.IsDebug)
+            {
+                _debugWindow = new();
+                debugButton.Visibility = Visibility.Visible;
+                MouseMove += (x, ev) =>
+                {
+                    AppVm.MousePosWnd = ev.GetPosition(this);
+                    AppVm.MousePosCanv = ev.GetPosition(mainCanvas);
+                };
+            }
+
         }
 
         #region Menu Methods
 
-        
+
         private void LoadSettings_Click(object sender, RoutedEventArgs e)
         {
             _settingsWindow.Show();
@@ -54,43 +76,27 @@ namespace Graph_Constructor_FLP
 
         public void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void Delete_All_Edges_Click(object sender, RoutedEventArgs e)
         {
-            for (int i = 0; i < ObjVm.Edges.Count; i++)
+            for (int i = ObjVm.Edges.Count - 1; i >= 0; i--)
                 ObjVm.CanvasObjects.Remove(ObjVm.Edges[i]);
+
+            ObjVm._counterEdges = 1;
         }
 
-        private void Delete_All_Objects_Click(object sender, RoutedEventArgs e) => ObjVm.CanvasObjects.Clear();
-
-        #endregion
-
-        #region Debug Methods
-        private void Debug_Click(object sender, RoutedEventArgs e)
+        private void Delete_All_Objects_Click(object sender, RoutedEventArgs e)
         {
-            AppVm.ObjectsVm.CanvasObjects.Add(
-                new Vertex(25d, 25d, 75d, 75d, "Debug_Vert")
-                );
+            ObjVm.CanvasObjects.Clear();
+            ObjVm._counterEdges = ObjVm._counterVerts = 1;
         }
 
-        private void Debug_Click_2(object sender, RoutedEventArgs e)
+        private void OpenDebug_Click(object sender, RoutedEventArgs e)
         {
-            AppVm.ObjectsVm.CanvasObjects.Add(
-                new Edge(4d,3d,2d,1d)
-                );
-        }
-
-        private void Debug_Click_3(object sender, RoutedEventArgs e)
-        {
-            (AppVm.ObjectsVm.CanvasObjects[0] as Vertex).FillColor = Colors.Black;
-        }
-
-        private void Debug_Click_4(object sender, RoutedEventArgs e)
-        {
-            var rnd = new Random();
-            (AppVm.ObjectsVm.CanvasObjects[0] as Vertex).Value = rnd.Next(1024);
+            _debugWindow.Show();
+            _debugWindow.Owner = this;
         }
 
         #endregion
@@ -104,6 +110,10 @@ namespace Graph_Constructor_FLP
                 case Key.E: CBExecute(connectingButton); break;
                 case Key.R: CBExecute(deletingButton); break;
                 case Key.A: if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) mainCanvas.SelectAll(); break;
+                case Key.Delete:
+                    if (mainCanvas.SelectedItems.Count > 0 && (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes))
+                        Delete_All_Selected();
+                    break;
             }
         }
         public void ExecuteWithParams(ButtonBase x) => x.Command.Execute(x.CommandParameter);
@@ -127,6 +137,10 @@ namespace Graph_Constructor_FLP
         private bool isLeftMouseDownOnVertex = false;
         private bool isLeftMouseAndControlDownOnVertex = false;
         private bool isDraggingVertex = false;
+
+        private Vertex begin;
+        private Edge currentEdge;
+        private bool isBinding = false;
         #endregion
 
         private void ResetMouseFields()
@@ -148,13 +162,15 @@ namespace Graph_Constructor_FLP
             if (e.ChangedButton != MouseButton.Left)
                 return;
 
+            mainCanvas.Focus();
             var ellipse = (FrameworkElement)sender;
             var vertVm = (Vertex)ellipse.DataContext;
+            var p = e.GetPosition(mainCanvas);
 
-            switch (AppVm.CanvasAction)     
+            switch (AppVm.CanvasAction)
             {
-                case CanvasAction.Moving:
                 case CanvasAction.Adding:
+                case CanvasAction.Moving:
 
 
                     isLeftMouseDownOnVertex = true;
@@ -165,7 +181,9 @@ namespace Graph_Constructor_FLP
                     {
                         isLeftMouseAndControlDownOnVertex = false;
                         if (mainCanvas.SelectedItems.Count == 0)
+                        {
                             mainCanvas.SelectedItems.Add(vertVm);
+                        }
                         else if (!mainCanvas.SelectedItems.Contains(vertVm))
                         {
                             mainCanvas.SelectedItems.Clear();
@@ -174,29 +192,36 @@ namespace Graph_Constructor_FLP
                     }
 
                     ellipse.CaptureMouse();
-                    origMouseDownPoint = e.GetPosition(mainCanvas);
+                    origMouseDownPoint = p;
+
 
                     e.Handled = true;
                     break;
                 case CanvasAction.Deleting:
-                    if (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить эту вершину?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                         ObjVm.CanvasObjects.Remove(vertVm);
                     else
                         mainCanvas.SelectedItems.Clear();
+                    break;
+                case CanvasAction.Connecting:
+                    ObjVm.CanvasObjects.Insert(0,currentEdge = new Edge(vertVm.Center, p));
+                    isBinding = true;
+                    //currentEdge.VertBegin = begin = vertVm;
+                    //mainCanvas.CaptureMouse();
                     break;
                 default:
                     break;
             }
 
-            
+
         }
         private void Vertex_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            var ellipse = (FrameworkElement)sender;
+            var vertVm = (Vertex)ellipse.DataContext;
+
             if (isLeftMouseDownOnVertex)
             {
-                var ellipse = (FrameworkElement)sender;
-                var vertVm = (Vertex)ellipse.DataContext;
-
                 if (!isDraggingVertex)
                     if (isLeftMouseAndControlDownOnVertex)
                         if (mainCanvas.SelectedItems.Contains(vertVm))
@@ -206,10 +231,12 @@ namespace Graph_Constructor_FLP
                     else
                         if (mainCanvas.SelectedItems.Count != 1 ||
                             mainCanvas.SelectedItem != vertVm)
-                        {
-                            mainCanvas.SelectedItems.Clear();
-                            mainCanvas.SelectedItems.Add(vertVm);
-                        }
+                    {
+                        mainCanvas.SelectedItems.Clear();
+                        mainCanvas.SelectedItems.Add(vertVm);
+                    }
+
+                var last = (Vertex)ObjVm.CanvasObjects.Last(x => x is Vertex);
 
                 ellipse.ReleaseMouseCapture();
                 isLeftMouseDownOnVertex = false;
@@ -219,6 +246,15 @@ namespace Graph_Constructor_FLP
             }
 
             isDraggingVertex = false;
+
+            if (isBinding && AppVm.CanvasAction == CanvasAction.Connecting)
+            {
+                currentEdge.VertBegin = begin;
+                currentEdge.VertEnd = vertVm;
+                currentEdge.End = vertVm.Center;
+                ellipse.ReleaseMouseCapture();
+                isBinding = false;
+            }
         }
         private void Vertex_MouseMove(object sender, MouseEventArgs e)
         {
@@ -252,12 +288,29 @@ namespace Graph_Constructor_FLP
 
         #endregion
 
+        #region Edge Mouse Methods
+        private void Edge_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            //
+        }
+        private void Edge_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            //
+        }
+        private void Edge_MouseMove(object sender, MouseEventArgs e)
+        {
+            //
+        }
+
+        #endregion
+
         // Canvas Mouse
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton != MouseButton.Left)
                 return;
 
+            mainCanvas.Focus();
             mainCanvas.SelectedItems.Clear();
             isLeftMouseButtonDownOnCanvas = true;
             origMouseDownPoint = e.GetPosition(mainCanvas);
@@ -271,15 +324,16 @@ namespace Graph_Constructor_FLP
                     Moving_Canvas_MouseDown(sender, e);
                     break;
                 case CanvasAction.Connecting:
+                    Connecting_Canvas_MouseDown(sender, e);
                     break;
                 case CanvasAction.Deleting:
                     Deleting_Canvas_MouseDown(sender, e);
                     break;
                 default:
-                    break;  
+                    break;
             }
 
-            
+
         }
 
         private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
@@ -296,6 +350,7 @@ namespace Graph_Constructor_FLP
                     Moving_Canvas_MouseUp(sender, e);
                     break;
                 case CanvasAction.Connecting:
+                    Connecting_Canvas_MouseUp(sender, e);
                     break;
                 case CanvasAction.Deleting:
                     Deleting_Canvas_MouseUp(sender, e);
@@ -303,7 +358,7 @@ namespace Graph_Constructor_FLP
                 default:
                     break;
             }
-            
+
         }
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
@@ -317,6 +372,7 @@ namespace Graph_Constructor_FLP
                     Moving_Canvas_MouseMove(sender, e);
                     break;
                 case CanvasAction.Connecting:
+                    Connecting_Canvas_MouseMove(sender, e);
                     break;
                 case CanvasAction.Deleting:
                     Deleting_Canvas_MouseMove(sender, e);
@@ -324,7 +380,7 @@ namespace Graph_Constructor_FLP
                 default:
                     break;
             }
-            
+
         }
 
 
@@ -357,7 +413,7 @@ namespace Graph_Constructor_FLP
             if (!wasDragSelectionApplied)
                 mainCanvas.SelectedItems.Clear();
         }
-        private void Moving_Canvas_MouseMove(object sender, MouseEventArgs e) 
+        private void Moving_Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDraggingSelectionRect)
             {
@@ -413,6 +469,7 @@ namespace Graph_Constructor_FLP
 
             Canvas.SetLeft(dragSelectionBorder, x);
             Canvas.SetTop(dragSelectionBorder, y);
+
             dragSelectionBorder.Width = width;
             dragSelectionBorder.Height = height;
         }
@@ -430,7 +487,7 @@ namespace Graph_Constructor_FLP
             dragRect.Inflate(width / 10, height / 10);
 
             mainCanvas.SelectedItems.Clear();
-            
+
             foreach (Vertex vert in ViewModelController.ObjectsViewModel.Vertices)
             {
                 Rect itemRect = new Rect(vert.X, vert.Y, vert.Width ?? ViewModelController.SettingsViewModel.VertexDiameter, vert.Height ?? ViewModelController.SettingsViewModel.VertexDiameter);
@@ -446,7 +503,6 @@ namespace Graph_Constructor_FLP
         private void Adding_Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             mainCanvas.SelectedItems.Clear();
-
             var pos = e.GetPosition(mainCanvas);
             ObjVm.CanvasObjects.Add(new Vertex(pos.X - Settings.VertexDiameter / 2, pos.Y - Settings.VertexDiameter / 2, 0, 0));
         }
@@ -455,7 +511,6 @@ namespace Graph_Constructor_FLP
 
         #endregion
 
-
         #region Deleting Mouse Methods
 
         private void Deleting_Canvas_MouseDown(object sender, MouseButtonEventArgs e) => Moving_Canvas_MouseDown(sender, e);
@@ -463,14 +518,8 @@ namespace Graph_Constructor_FLP
         {
             Moving_Canvas_MouseUp(sender, e);
 
-            if (mainCanvas.SelectedItems.Count > 0 && (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить эту вершину?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes))
-            {
-                for (int i = mainCanvas.SelectedItems.Count - 1; i >= 0; i--)
-                {
-                    Vertex vert = (Vertex)mainCanvas.SelectedItems[i];
-                    ObjVm.CanvasObjects.Remove(vert);
-                }
-            }
+            if (mainCanvas.SelectedItems.Count > 0 && (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes))
+                Delete_All_Selected();
             else
                 mainCanvas.SelectedItems.Clear();
         }
@@ -478,8 +527,38 @@ namespace Graph_Constructor_FLP
 
         #endregion
 
+        #region Connecting Mouse Methods
 
+        private void Connecting_Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
 
+        }
+        private void Connecting_Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            
+        }
+        private void Connecting_Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isBinding && AppVm.CanvasAction == CanvasAction.Connecting)
+                currentEdge.End = e.GetPosition(mainCanvas);
+        }
 
+        #endregion
+
+        private void Delete_All_Selected()
+        {
+            for (int i = mainCanvas.SelectedItems.Count - 1; i >= 0; i--)
+            {
+                Vertex vert = (Vertex)mainCanvas.SelectedItems[i];
+                ObjVm.CanvasObjects.Remove(vert);
+            }
+        }
+
+        private void WatermarkTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            var wTb = sender as Xceed.Wpf.Toolkit.WatermarkTextBox;
+            if (e.Key == Key.Enter)
+                mainCanvas.Focus();
+        }
     }
 }
