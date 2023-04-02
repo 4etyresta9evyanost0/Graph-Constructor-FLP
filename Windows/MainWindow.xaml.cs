@@ -206,7 +206,7 @@ namespace Graph_Constructor_FLP
                 case CanvasAction.Connecting:
                     ObjVm.CanvasObjects.Insert(0,currentEdge = new Edge(vertVm.Center, p));
                     isBinding = true;
-                    //currentEdge.VertBegin = begin = vertVm;
+                    begin = vertVm;
                     //mainCanvas.CaptureMouse();
                     break;
                 default:

@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="Graph_Constructor_FLP.BorderedLine"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Graph_Constructor_FLP"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Line X1="{DXBinding '@s.X1'}"
+              Y1="{DXBinding '@s.Y1'}"
+              X2="{DXBinding '@s.X2'}"
+              Y2="{DXBinding '@s.Y2'}"
+              Stroke="{DXBinding '@s.StrokeBorderBrush'}"
+              StrokeThickness="{DXBinding '@s.StrokeThickness + @s.StrokePadding + @s.StrokeBorderThickness'}"
+              StrokeStartLineCap="Round"
+              StrokeEndLineCap="Round">
+
+        </Line>
+        <Line X1="{DXBinding '@s.X1'}"
+              Y1="{DXBinding '@s.Y1'}"
+              X2="{DXBinding '@s.X2'}"
+              Y2="{DXBinding '@s.Y2'}"
+              Stroke="{DXBinding '@s.StrokePaddingBrush'}"
+              StrokeThickness="{DXBinding '@s.StrokeThickness + @s.StrokePadding'}"
+              StrokeStartLineCap="Round"
+              StrokeEndLineCap="Round">
+
+        </Line>
+        <Line X1="{DXBinding '@s.X1'}"
+              Y1="{DXBinding '@s.Y1'}"
+              X2="{DXBinding '@s.X2'}"
+              Y2="{DXBinding '@s.Y2'}"
+              Stroke="{DXBinding '@s.Stroke'}"
+              StrokeThickness="{DXBinding '@s.StrokeThickness'}"
+              StrokeStartLineCap="Triangle"
+              StrokeEndLineCap="Triangle">
+        </Line>
+    </Grid>
+</UserControl>
