@@ -138,8 +138,8 @@ namespace Graph_Constructor_FLP
         private bool isLeftMouseAndControlDownOnVertex = false;
         private bool isDraggingVertex = false;
 
-        private Vertex begin;
-        private Edge currentEdge;
+        private Vertex? begin;
+        private Edge? currentEdge;
         private bool isBinding = false;
         #endregion
 
@@ -247,11 +247,19 @@ namespace Graph_Constructor_FLP
 
             isDraggingVertex = false;
 
-            if (isBinding && AppVm.CanvasAction == CanvasAction.Connecting)
+            if (isBinding)
             {
-                currentEdge.VertBegin = begin;
-                currentEdge.VertEnd = vertVm;
-                currentEdge.End = vertVm.Center;
+                if (AppVm.CanvasAction == CanvasAction.Connecting && begin != vertVm)
+                {
+                    currentEdge.VertBegin = begin;
+                    currentEdge.VertEnd = vertVm;
+                    //currentEdge.End = vertVm.Center;
+                }
+                else
+                {
+                    ObjVm.CanvasObjects.Remove(currentEdge);
+                }
+                currentEdge = null;
                 ellipse.ReleaseMouseCapture();
                 isBinding = false;
             }
@@ -559,6 +567,11 @@ namespace Graph_Constructor_FLP
             var wTb = sender as Xceed.Wpf.Toolkit.WatermarkTextBox;
             if (e.Key == Key.Enter)
                 mainCanvas.Focus();
+        }
+
+        private void solveButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

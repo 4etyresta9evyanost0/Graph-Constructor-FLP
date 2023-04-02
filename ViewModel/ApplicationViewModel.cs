@@ -246,11 +246,19 @@ namespace Graph_Constructor_FLP.ViewModel
             set { X = value.X; Y = value.Y;}
         }
 
-        //public FrameworkElement FrameworkElement
-        //{
-        //    get => GetValue<FrameworkElement>();
-        //    set => SetValue(value);
-        //}
+        #region Костыль
+        public virtual Vertex VertBegin
+        {
+            get => GetValue<Vertex>();
+            set => SetValue(value);
+        }
+
+        public virtual Vertex VertEnd
+        {
+            get => GetValue<Vertex>();
+            set => SetValue(value);
+        }
+        #endregion
 
         public static ApplicationViewModel AppVm => ViewModelController.ApplicationViewModel;
         public static SettingsViewModel Settings => ViewModelController.SettingsViewModel;
@@ -403,29 +411,18 @@ namespace Graph_Constructor_FLP.ViewModel
     public class Edge : CanvasObj
     {
         #region Fields
-        //readonly ObservableCollection<Vertex> _vertices = new(new List<Vertex>(2));
+
         #endregion
 
         #region Properties
-        //public (Vertex begin, Vertex end) Vertices
-        //{
-        //    get
-        //    {
-        //        return (_vertices[0], _vertices[1]);
-        //    }
-        //    set
-        //    {
-        //        (_vertices[0], _vertices[1]) = value;
-        //    }
-        //}
 
-        public Vertex VertBegin
+        public override Vertex VertBegin
         {
             get => GetValue<Vertex>();
             set => SetValue(value);
         }
 
-        public Vertex VertEnd
+        public override Vertex VertEnd
         {
             get => GetValue<Vertex>();
             set => SetValue(value);
@@ -452,17 +449,19 @@ namespace Graph_Constructor_FLP.ViewModel
             //        nameof(Begin),
             //        nameof(End));
             //};
+            //var b = VertEnd != null ? VertEnd.Center.Y : Height;
         }
         #endregion
 
-        public Edge(double x1, double y1, double x2, double y2) : base(x1, y1, x2, y2) { }
+        public Edge(double x1, double y1, double x2, double y2) : base(x1, y1, x2, y2) { Init(); }
 
-        public Edge(double x, double y, Size size) : base(x, y, size) { }
+        public Edge(double x, double y, Size size) : base(x, y, size) { Init(); }
 
-        public Edge(Point begin, Point end) : base(begin, end) { }
+        public Edge(Point begin, Point end) : base(begin, end) { Init(); }
 
         public Edge(Vertex begin, Vertex end)
         {
+            Init();
             VertBegin = begin;
             VertEnd = end;
         }

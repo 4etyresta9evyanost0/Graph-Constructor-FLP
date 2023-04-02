@@ -6,6 +6,8 @@
         xmlns:local="clr-namespace:Graph_Constructor_FLP"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:vm="clr-namespace:Graph_Constructor_FLP.ViewModel"
+        xmlns:devxpr="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+        xmlns:devxpri="http://schemas.devexpress.com/winfx/2008/xaml/mvvm/internal"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:Graph_Constructor_FLP.Converters"
@@ -58,7 +60,9 @@
             <RadioButton x:Name="deletingButton"
                     Style="{StaticResource {x:Type ToggleButton}}" Width="40" Height="40" Margin="5" Padding="0" ToolTip="Удалить (К)" Content="{StaticResource ButtonDelete}"
                     Command="{Binding CanvasActionChangeCommand}" CommandParameter="Deleting" Click="SwitchCanvas_Click"/>
-            <!--<Button Width="20" Height="20" Margin="2" Padding="0" ToolTip="Изменить" Content="{StaticResource ButtonChange}"></Button>-->
+            <Button x:Name="solveButton"
+                    Width="180" Height="40" Margin="5" Padding="0" ToolTip="Решить" Content="Решить задачу" FontSize="24"
+                    Command="{Binding CanvasActionChangeCommand}" CommandParameter="Deleting" Click="solveButton_Click"/>
         </WrapPanel>
         <Grid>
             <ListBox x:Name="mainCanvas" 
@@ -127,14 +131,32 @@
                                 </ContextMenu>
                             </Grid.ContextMenu>
                             <Line x:Name="MainLine"
-                            X1="{DXBinding 'VertBegin != null ? VertBegin.Center.X : X'}"
-                            Y1="{DXBinding 'VertBegin != null ? VertBegin.Center.Y : Y'}"
-                            X2="{DXBinding 'VertEnd != null ? VertEnd.Center.X : Width'}"
-                            Y2="{DXBinding 'VertEnd != null ? VertEnd.Center.Y : Height'}"
                             Stroke="{DXBinding Settings.EdgeStrokeColor, Converter={StaticResource ColorToBrushConverter}}"
                             StrokeStartLineCap="Triangle"
                             StrokeEndLineCap="Triangle"
-                            StrokeThickness="{DXBinding Settings.EdgeStrokeSize}"/><!--StrokeDashCap в Settings?-->
+                            StrokeThickness="{DXBinding Settings.EdgeStrokeSize}">
+                                <Line.Style>
+                                    <Style TargetType="Line">
+                                        <!--X1="{DXBinding Expr='VertBegin.Center.X', TargetNullValue={Binding X}}"
+                                        Y1="{DXBinding 'VertBegin.Center.Y', TargetNullValue={Binding Y}}"
+                                        X2="{DXBinding 'VertEnd.Center.X', TargetNullValue={Binding Width}}"
+                                        Y2="{DXBinding 'VertEnd.Center.Y', TargetNullValue={Binding Height}}"-->
+                                        <Setter Property="X1" Value="{DXBinding VertBegin.Center.X}"/>
+                                        <Setter Property="Y1" Value="{DXBinding VertBegin.Center.Y}" />
+                                        <Setter Property="X2" Value="{DXBinding VertEnd.Center.X}" />
+                                        <Setter Property="Y2" Value="{DXBinding VertEnd.Center.Y}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{DXBinding VertBegin}" Value="{x:Null}">
+                                                <Setter Property="X1" Value="{Binding X}"/>
+                                                <Setter Property="Y1" Value="{Binding Y}"/>
+                                                <Setter Property="X2" Value="{Binding Width}"/>
+                                                <Setter Property="Y2" Value="{Binding Height}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Line.Style>
+                            </Line>
+                            <!--StrokeDashCap в Settings?-->
                         <!--<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <xctk:WatermarkTextBox HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding Value}"
                                             BorderBrush="{x:Null}" BorderThickness="0" Background="{x:Null}"
@@ -153,18 +175,18 @@
                                     <Border Name="Border">
                                         <Grid>
                                             <Line x:Name="BorderLine"
-                                            X1="{Binding X}"
-                                            Y1="{Binding Y}"
-                                            X2="{Binding Width}"
-                                            Y2="{Binding Height}"
+                                            X1="{DXBinding 'VertBegin != null ? VertBegin.Center.X : X', FallbackValue=0}"
+                                            Y1="{DXBinding 'VertBegin != null ? VertBegin.Center.Y : Y', FallbackValue=0}"
+                                            X2="{DXBinding 'VertEnd != null ? VertEnd.Center.X : Width', FallbackValue=0}"
+                                            Y2="{DXBinding 'VertEnd != null ? VertEnd.Center.Y : Height', FallbackValue=0}"
                                             StrokeStartLineCap="Round"
                                             StrokeEndLineCap="Round"
                                             StrokeThickness="{DXBinding Expr='Settings.EdgeStrokeSize + 9'}"/>
                                             <Line x:Name="BorderLinePadding"
-                                            X1="{Binding X}"
-                                            Y1="{Binding Y}"
-                                            X2="{Binding Width}"
-                                            Y2="{Binding Height}"
+                                            X1="{DXBinding 'VertBegin != null ? VertBegin.Center.X : X', FallbackValue=0}"
+                                            Y1="{DXBinding 'VertBegin != null ? VertBegin.Center.Y : Y', FallbackValue=0}"
+                                            X2="{DXBinding 'VertEnd != null ? VertEnd.Center.X : Width', FallbackValue=0}"
+                                            Y2="{DXBinding 'VertEnd != null ? VertEnd.Center.Y : Height', FallbackValue=0}"
                                             StrokeStartLineCap="Round"
                                             StrokeEndLineCap="Round"
                                             StrokeThickness="{DXBinding Expr='Settings.EdgeStrokeSize + 8'}"/>

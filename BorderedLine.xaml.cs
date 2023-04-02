@@ -91,7 +91,7 @@ namespace Graph_Constructor_FLP
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(BorderedLine), new PropertyMetadata(0d));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(BorderedLine), new PropertyMetadata(1d));
 
         public double StrokePadding
         {

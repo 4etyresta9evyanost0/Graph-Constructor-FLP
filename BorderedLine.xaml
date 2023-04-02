@@ -4,35 +4,34 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Graph_Constructor_FLP"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             mc:Ignorable="d" DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid>
-        <Line X1="{DXBinding '@s.X1'}"
-              Y1="{DXBinding '@s.Y1'}"
-              X2="{DXBinding '@s.X2'}"
-              Y2="{DXBinding '@s.Y2'}"
-              Stroke="{DXBinding '@s.StrokeBorderBrush'}"
-              StrokeThickness="{DXBinding '@s.StrokeThickness + @s.StrokePadding + @s.StrokeBorderThickness'}"
+        <Line X1="{DXBinding '@p.X1', Mode=TwoWay}"
+              Y1="{DXBinding '@p.Y1', Mode=TwoWay}"
+              X2="{DXBinding '@p.X2', Mode=TwoWay}"
+              Y2="{DXBinding '@p.Y2', Mode=TwoWay}"
+              Stroke="{DXBinding '@p.StrokeBorderBrush', Mode=TwoWay}"
+              StrokeThickness="{DXBinding '@p.StrokeThickness + @p.StrokePadding + @p.StrokeBorderThickness'}"
               StrokeStartLineCap="Round"
               StrokeEndLineCap="Round">
 
         </Line>
-        <Line X1="{DXBinding '@s.X1'}"
-              Y1="{DXBinding '@s.Y1'}"
-              X2="{DXBinding '@s.X2'}"
-              Y2="{DXBinding '@s.Y2'}"
-              Stroke="{DXBinding '@s.StrokePaddingBrush'}"
-              StrokeThickness="{DXBinding '@s.StrokeThickness + @s.StrokePadding'}"
+        <Line X1="{DXBinding '@p.X1', Mode=TwoWay}"
+              Y1="{DXBinding '@p.Y1', Mode=TwoWay}"
+              X2="{DXBinding '@p.X2', Mode=TwoWay}"
+              Y2="{DXBinding '@p.Y2', Mode=TwoWay}"
+              Stroke="{DXBinding '@p.StrokePaddingBrush', Mode=TwoWay}"
+              StrokeThickness="{DXBinding '@p.StrokeThickness + @p.StrokePadding'}"
               StrokeStartLineCap="Round"
               StrokeEndLineCap="Round">
 
         </Line>
-        <Line X1="{DXBinding '@s.X1'}"
-              Y1="{DXBinding '@s.Y1'}"
-              X2="{DXBinding '@s.X2'}"
-              Y2="{DXBinding '@s.Y2'}"
-              Stroke="{DXBinding '@s.Stroke'}"
-              StrokeThickness="{DXBinding '@s.StrokeThickness'}"
+        <Line X1="{DXBinding '@p.X1', Mode=TwoWay}"
+              Y1="{DXBinding '@p.Y1', Mode=TwoWay}"
+              X2="{DXBinding '@p.X2', Mode=TwoWay}"
+              Y2="{DXBinding '@p.Y2', Mode=TwoWay}"
+              Stroke="{DXBinding '@p.Stroke', Mode=TwoWay}"
+              StrokeThickness="{DXBinding '@p.StrokeThickness'}"
               StrokeStartLineCap="Triangle"
               StrokeEndLineCap="Triangle">
         </Line>
