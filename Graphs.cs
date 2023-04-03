@@ -65,17 +65,17 @@ namespace Graphs
         //    get => Graph.Edges.FindAll((x) => x.Begin == this || x.End == this).ToArray();
         //}
 
-        public int[] AdjacencyRow
+        public double?[] AdjacencyRow
         {
 
             get
             {
-                int[] row = new int[Graph.Vertices.Count];
+                double?[] row = new double?[Graph.Vertices.Count];
 
-                Begins.ToList().ForEach((x) => row[x.End.Index] = 1);
+                Begins.ToList().ForEach((x) => row[x.End.Index] = x.Weight ?? 0);
                 Ends.ToList().ForEach((x) => {
                     if (!x.HasDirection)
-                        row[x.Begin.Index] = 1;
+                        row[x.Begin.Index] = x.Weight ?? 0;
                 });
 
                 return row;
@@ -316,11 +316,11 @@ namespace Graphs
             Edges.ForEach((x) => x.Graph = this);
         }
 
-        public int[,] AdjacencyMatrix
+        public double?[,] AdjacencyMatrix
         {
             get
             {
-                int[,] mat = new int[Vertices.Count, Vertices.Count];
+                double?[,] mat = new double?[Vertices.Count, Vertices.Count];
 
                 for (int i = 0; i < Vertices.Count; i++)
                 {
@@ -350,7 +350,7 @@ namespace Graphs
             }
         }
 
-        public int[,] ReachabilityMatrix
+        public double?[,] ReachabilityMatrix
         {
             get
             {
@@ -358,7 +358,7 @@ namespace Graphs
                 //{
                 //    return null;
                 //}
-                int[,] mat = new int[Vertices.Count, Vertices.Count];
+                double?[,] mat = new double?[Vertices.Count, Vertices.Count];
                 for (int i = 0; i < Vertices.Count; i++)
                     for (int j = 0; j < Vertices.Count; j++)
                         mat[i, j] = AdjacencyMatrix[i, j];
@@ -367,7 +367,7 @@ namespace Graphs
                 for (int k = 0; k < Vertices.Count; k++)
                     for (int i = 0; i < Vertices.Count; i++)
                         for (int j = 0; j < Vertices.Count; j++)
-                            mat[i, j] = mat[i, j] | (mat[i, k] & mat[k, j]);
+                            mat[i, j] = (int)mat[i, j] | ((int)mat[i, k] & (int)mat[k, j]);
 
                 for (int i = 0; i < Vertices.Count; i++)
                     mat[i, i] = 1;
@@ -487,7 +487,7 @@ namespace Graphs
             {
                 for (int j = 0; j < mat.GetLength(1); j++)
                 {
-                    str += $"{mat[i, j]}\t";
+                    str += $"{(mat[i, j] == null ? 0 : mat[i, j])}\t";
                 }
                 str += "\r\n";
             }

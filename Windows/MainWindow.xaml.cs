@@ -87,7 +87,7 @@ namespace Graph_Constructor_FLP
         private void Delete_All_Edges_Click(object sender, RoutedEventArgs e)
         {
             for (int i = ObjVm.Edges.Count - 1; i >= 0; i--)
-                ObjVm.CanvasObjects.Remove(ObjVm.Edges[i]);
+                ObjVm.Edges[i].Remove();
 
             ObjVm._counterEdges = 1;
         }
@@ -116,7 +116,7 @@ namespace Graph_Constructor_FLP
                 case Key.R: CBExecute(deletingButton); break;
                 case Key.A: if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) mainCanvas.SelectAll(); break;
                 case Key.Delete:
-                    if (mainCanvas.SelectedItems.Count > 0 && (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes))
+                    if (mainCanvas.SelectedItems.Count > 0 && (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?\r\nВсе рёбра будут также удалены!", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes))
                         Delete_All_Selected();
                     break;
             }
@@ -203,13 +203,13 @@ namespace Graph_Constructor_FLP
                     e.Handled = true;
                     break;
                 case CanvasAction.Deleting:
-                    if (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                        ObjVm.CanvasObjects.Remove(vertVm);
+                    if (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?\r\nВсе рёбра будут также удалены!", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                        vertVm.Remove();
                     else
                         mainCanvas.SelectedItems.Clear();
                     break;
                 case CanvasAction.Connecting:
-                    ObjVm.CanvasObjects.Insert(0,currentEdge = new Edge(vertVm.Center, p));
+                    ObjVm.CanvasObjects.Insert(0, currentEdge = new Edge(vertVm.Center, p));
                     isBinding = true;
                     begin = vertVm;
                     //mainCanvas.CaptureMouse();
@@ -264,7 +264,9 @@ namespace Graph_Constructor_FLP
                 }
                 else
                 {
+                    // Осавить так?
                     ObjVm.CanvasObjects.Remove(currentEdge);
+                    //currentEdge.Remove();
                 }
                 currentEdge = null;
                 ellipse.ReleaseMouseCapture();
@@ -306,7 +308,23 @@ namespace Graph_Constructor_FLP
         #region Edge Mouse Methods
         private void Edge_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //
+            if (e.ChangedButton != MouseButton.Left)
+                return;
+
+            var line = (FrameworkElement)sender;
+            var edgeVm = (Edge)line.DataContext;
+            mainCanvas.Focus();
+            switch (AppVm.CanvasAction)
+            {
+                case CanvasAction.Adding:
+                case CanvasAction.Moving:
+                    mainCanvas.SelectedItems.Add(edgeVm);
+                    break;
+                case CanvasAction.Deleting:
+                    if (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?\r\nВсе рёбра будут также удалены!", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                        edgeVm.Remove();
+                    break;
+            }
         }
         private void Edge_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -534,7 +552,7 @@ namespace Graph_Constructor_FLP
         {
             Moving_Canvas_MouseUp(sender, e);
 
-            if (mainCanvas.SelectedItems.Count > 0 && (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes))
+            if (mainCanvas.SelectedItems.Count > 0 && (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?\r\nВсе рёбра будут также удалены!", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes))
                 Delete_All_Selected();
             else
                 mainCanvas.SelectedItems.Clear();
@@ -566,8 +584,8 @@ namespace Graph_Constructor_FLP
         {
             for (int i = mainCanvas.SelectedItems.Count - 1; i >= 0; i--)
             {
-                Vertex vert = (Vertex)mainCanvas.SelectedItems[i];
-                ObjVm.CanvasObjects.Remove(vert);
+                CanvasObj vert = (CanvasObj)mainCanvas.SelectedItems[i];
+                vert.Remove();
             }
         }
 
@@ -582,11 +600,15 @@ namespace Graph_Constructor_FLP
         {
             double?[,] vals =
             {
-                { 0,  2,  3,  5,  9,  2, 5 },
-                { 12, 51, 21, 12, 15, 6, 2 }
+                { 0, 2, 3, 0 },
+                { 2, 0, 4, 0 },
+                { 3, 4, 0, 12},
+                { 0, 0, 12, 0}
+
             };
 
             var g = new Graphs.Graph(vals, Graphs.GraphType.Undirected);
+            var gstr = g.AdjacencyMatrixStr;
         }
     }
 }

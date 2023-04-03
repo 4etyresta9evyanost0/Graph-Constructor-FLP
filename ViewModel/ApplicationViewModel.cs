@@ -37,12 +37,12 @@ namespace Graph_Constructor_FLP.ViewModel
         // Vm's
         public ObjectsViewModel ObjectsVm => ViewModelController.ObjectsViewModel;
         public SettingsViewModel Settings => ViewModelController.SettingsViewModel;
-        public Point MousePosWnd 
-        { 
-            get => GetValue<Point>(); 
-            set => SetValue(value); 
+        public Point MousePosWnd
+        {
+            get => GetValue<Point>();
+            set => SetValue(value);
         }
-        public Point MousePosCanv 
+        public Point MousePosCanv
         {
             get => GetValue<Point>();
             set => SetValue(value);
@@ -63,7 +63,7 @@ namespace Graph_Constructor_FLP.ViewModel
         #region Methods
 
         #endregion
-        public ApplicationViewModel() 
+        public ApplicationViewModel()
         {
             CanvasAction = CanvasAction.Moving;
             CanvasActionChangeCommand = new DelegateCommand<CanvasAction>(ChangeCanvasAction);
@@ -101,7 +101,8 @@ namespace Graph_Constructor_FLP.ViewModel
         #region Methods
         public void AddObj(CanvasObj canvasObj) => _canvasObjects.Add(canvasObj);
         #endregion
-        public ObjectsViewModel() {
+        public ObjectsViewModel()
+        {
             _canvasObjects.CollectionChanged += (x, ev) =>
             {
                 RaisePropertiesChanged(
@@ -125,6 +126,17 @@ namespace Graph_Constructor_FLP.ViewModel
                         }
                         break;
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                        {
+                            foreach (var item in ev.OldItems)
+                            {
+                                if (item is Vertex v)
+                                {
+                                    ;//v.Name ??= $"X{_counterVerts++}";
+                                }
+                                if (item is Edge e)
+                                    ;// e.Name ??= $"U{_counterEdges++}";
+                            }
+                        }
                         break;
                     default:
                         break;
@@ -140,7 +152,7 @@ namespace Graph_Constructor_FLP.ViewModel
             Vertex v2;
             _canvasObjects.Add(v1 = new Vertex(25, 50, 0, 0));
             _canvasObjects.Add(v2 = new Vertex(75, 125, 0, 0));
-            _canvasObjects.Insert(0,new Edge(v1, v2));
+            _canvasObjects.Insert(0, new Edge(v1, v2));
         }
     }
 
@@ -243,13 +255,13 @@ namespace Graph_Constructor_FLP.ViewModel
         public double? Value
         {
             get => GetValue<double?>();
-            set => SetValue(value); 
+            set => SetValue(value);
         }
 
         public virtual Point Center
         {
             get { return new(X + (Width ?? 0) / 2, Y + (Height ?? 0) / 2); }
-            set { X = value.X; Y = value.Y;}
+            set { X = value.X; Y = value.Y; }
         }
 
         #region Костыль
@@ -267,15 +279,23 @@ namespace Graph_Constructor_FLP.ViewModel
         #endregion
 
         public static ApplicationViewModel AppVm => ViewModelController.ApplicationViewModel;
+        public static ObjectsViewModel ObjVm => ViewModelController.ObjectsViewModel;
         public static SettingsViewModel Settings => ViewModelController.SettingsViewModel;
 
         #endregion
 
         #region Methods
 
-        public virtual void Init() 
+        public virtual void Init()
         {
             Value = null;
+        }
+
+        public virtual void Remove()
+        {
+            ObjVm.CanvasObjects.Remove(this);
+            //v.EdgesBegin.ForEach(edge => _canvasObjects.Remove(edge));
+            //v.EdgesEnd.ForEach(edge => _canvasObjects.Remove(edge));
         }
 
         #endregion
@@ -301,7 +321,7 @@ namespace Graph_Constructor_FLP.ViewModel
         {
             Begin = begin;
             End = end;
-        } 
+        }
     }
 
     public class Vertex : CanvasObj
@@ -353,7 +373,11 @@ namespace Graph_Constructor_FLP.ViewModel
         #endregion
 
         #region Methods
-
+        public override void Remove()
+        {
+            this.Edges.ForEach(x => ObjVm.CanvasObjects.Remove(x));
+            base.Remove();
+        }
         public override void Init()
         {
             base.Init();
@@ -429,16 +453,24 @@ namespace Graph_Constructor_FLP.ViewModel
         public override Vertex VertBegin
         {
             get => GetValue<Vertex>();
-            set => SetValue(value);
+            set
+            {
+                SetValue(value);
+                value.EdgesBegin.Add(this);
+            }
         }
 
         public override Vertex VertEnd
         {
             get => GetValue<Vertex>();
-            set => SetValue(value);
+            set
+            {
+                SetValue(value);
+                value.EdgesEnd.Add(this);
+            }
         }
 
-        public override Point End 
+        public override Point End
         {
             get => new(Width ?? 0, Height ?? 0);
             set
@@ -450,6 +482,12 @@ namespace Graph_Constructor_FLP.ViewModel
         #endregion
 
         #region Methods
+        public override void Remove()
+        {
+            base.Remove();
+            this.VertBegin.EdgesBegin.Remove(this);
+            this.VertEnd.EdgesEnd.Remove(this);
+        }
         public override void Init()
         {
             //_vertices.CollectionChanged += (x, ev) =>

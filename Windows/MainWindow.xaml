@@ -25,7 +25,10 @@
         <Menu DockPanel.Dock="Top" Background="White" BorderBrush="#FF868686" BorderThickness="0,0,0,1">
             <MenuItem Header="Файл">
                 <MenuItem Header="Сохранить" Click="SaveButton_Click"></MenuItem>
+                <MenuItem Header="Сохранить как" Click="SaveButton_Click"></MenuItem>
                 <MenuItem Header="Загрузить"></MenuItem>
+                <Separator/>
+                <MenuItem Header="Экспорт в PNG"></MenuItem>
                 <Separator/>
                 <MenuItem Header="Выход"></MenuItem>
             </MenuItem>
@@ -33,6 +36,10 @@
             <MenuItem Header="Фигуры">
                 <MenuItem Header="Убрать все соединения" Click="Delete_All_Edges_Click"/>
                 <MenuItem Header="Удалить все фигуры" Click="Delete_All_Objects_Click"/>
+            </MenuItem>
+            <MenuItem Header="Справка">
+                <MenuItem Header="Руководство пользователя"/>
+                <MenuItem Header="Руководство программисту"/>
             </MenuItem>
             <MenuItem x:Name="debugButton" Header="DEBUG" Click="OpenDebug_Click" Visibility="Collapsed"/>
         </Menu>
@@ -107,7 +114,7 @@
                                      BorderBrush="{x:Null}" BorderThickness="0" Background="{x:Null}"
                                      Foreground="{DXBinding Settings.VertexTextColor, Converter={StaticResource ColorToBrushConverter}}"
                                      FontSize="{DXBinding Settings.VertexTextSize}" Watermark="Значение" PreviewKeyDown="WatermarkTextBox_PreviewKeyDown" AcceptsReturn="False"
-                                     IsEnabled="{DXBinding Expr='(int)AppVm.CanvasAction == 1'}"
+                                     IsEnabled="{DXBinding Expr='(int)AppVm.CanvasAction == 0'}"
                                      Visibility="{DXBinding '@s.IsEnabled ? `Visible` : `Collapsed`'}">
                                     <!--<xctk:WatermarkTextBox.Style>
                                         <Style>
@@ -159,7 +166,7 @@
                                 </Line.Style>
                             </Line>
                             <!--StrokeDashCap в Settings?-->
-                        <!--<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <!--<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <xctk:WatermarkTextBox HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding Value}"
                                             BorderBrush="{x:Null}" BorderThickness="0" Background="{x:Null}"
                                             Foreground="{DXBinding Settings.EdgeTextColor, Converter={StaticResource ColorToBrushConverter}}"
@@ -172,9 +179,9 @@
                                      BorderBrush="{x:Null}" BorderThickness="0"
                                      Foreground="{DXBinding Settings.EdgeTextColor, Converter={StaticResource ColorToBrushConverter}}"
                                      FontSize="{DXBinding Settings.EdgeTextSize}" PreviewKeyDown="WatermarkTextBox_PreviewKeyDown" AcceptsReturn="False"
-                                     IsEnabled="{DXBinding Expr='(int)AppVm.CanvasAction == 1'}"
-                                     Background="{DXBinding '@s.IsEnabled ? Settings.EdgeTextBackgroundColor : $Colors.Transparent', Converter={StaticResource ColorToBrushConverter}}"
-                                     Watermark="{DXBinding '@s.IsEnabled ? `Значение` : null'}">
+                                     IsEnabled="{DXBinding Expr='(int)AppVm.CanvasAction == 0'}"
+                                     Background="{DXBinding '@s.IsEnabled || Settings.ShowBackgroundColor ? Settings.EdgeTextBackgroundColor : $Colors.Transparent', Converter={StaticResource ColorToBrushConverter}}"
+                                     Watermark="{DXBinding '@s.IsEnabled ? `Значение` : ``'}">
                                 <!-- Margin="{DXBinding 'new $Thickness(X + Width / 2 - @s.ActualWidth, Y + Height / 2 - @s.ActualHeight, 0, 0)'}"
                                     Margin="{DXBinding 'new $Thickness((end + (Begin - end) / 2).X + X, (end + (Begin - end) / 2).Y + Y,0,0)'}"-->
                                 <!--<xctk:WatermarkTextBox.Style>

@@ -88,15 +88,21 @@ namespace Graph_Constructor_FLP.ViewModel
             set { SetValue(value); }
         }
 
+        public bool ShowBackgroundColor
+        {
+            get { return GetValue<bool>(); }
+            set { SetValue(value); }
+        }
+
         public Color CanvasBackgroundColor
         {
             get { return GetValue<Color>(); }
             set { SetValue(value); }
         }
-        
+
 
         public SettingsViewModel()
-        { 
+        {
             VertexFillColor = Color.FromRgb(0xAB, 0xCB, 0x51); // #ABCB51
             VertexDiameter = 60;
             VertexStrokeColor = Colors.Black;
@@ -108,7 +114,7 @@ namespace Graph_Constructor_FLP.ViewModel
 
             VertexTextColor = Colors.White;
             VertexTextSize = 10;
-            
+
             EdgeTextColor = Colors.White;
             EdgeTextSize = 16;
             EdgeTextBackgroundColor = Colors.Black;
