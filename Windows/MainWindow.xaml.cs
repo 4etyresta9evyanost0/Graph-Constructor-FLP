@@ -38,7 +38,6 @@ namespace Graph_Constructor_FLP
         public MainWindow()
         {
             InitializeComponent();
-
             //Closing += (x, ev) =>
             //{
             //    OnClosingDialogWindow wind = new OnClosingDialogWindow();
@@ -47,7 +46,13 @@ namespace Graph_Constructor_FLP
             //        ev.Cancel = true;
             //    }
             //};
+            Point begin = new Point(-52d, 25d);
 
+            Point end = new Point(25d, 16d);
+
+            var fromEndToBegin = begin - end;
+
+            var center = end + fromEndToBegin / 2;
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -253,7 +258,9 @@ namespace Graph_Constructor_FLP
                 {
                     currentEdge.VertBegin = begin;
                     currentEdge.VertEnd = vertVm;
-                    //currentEdge.End = vertVm.Center;
+                    // настройка вертексов
+                    begin.EdgesBegin.Add(currentEdge);
+                    vertVm.EdgesEnd.Add(currentEdge);
                 }
                 else
                 {
@@ -365,6 +372,7 @@ namespace Graph_Constructor_FLP
                     break;
                 default:
                     break;
+
             }
 
         }
@@ -543,7 +551,8 @@ namespace Graph_Constructor_FLP
         }
         private void Connecting_Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            
+            ObjVm.CanvasObjects.Remove(currentEdge);
+            isBinding = false;
         }
         private void Connecting_Canvas_MouseMove(object sender, MouseEventArgs e)
         {
@@ -571,7 +580,13 @@ namespace Graph_Constructor_FLP
 
         private void solveButton_Click(object sender, RoutedEventArgs e)
         {
+            double?[,] vals =
+            {
+                { 0,  2,  3,  5,  9,  2, 5 },
+                { 12, 51, 21, 12, 15, 6, 2 }
+            };
 
+            var g = new Graphs.Graph(vals, Graphs.GraphType.Undirected);
         }
     }
 }

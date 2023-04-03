@@ -15,6 +15,7 @@ using System.Windows.Data;
 using DevExpress.Xpf.DXBinding;
 using Graph_Constructor_FLP.Windows;
 using MaterialDesignThemes.Wpf;
+using Graphs;
 
 namespace Graph_Constructor_FLP.ViewModel
 {
@@ -135,6 +136,11 @@ namespace Graph_Constructor_FLP.ViewModel
                 //    else if (item is Edge edge)
                 //        edge.Vertices.RaisePropertiesChanged();
             };
+            Vertex v1;
+            Vertex v2;
+            _canvasObjects.Add(v1 = new Vertex(25, 50, 0, 0));
+            _canvasObjects.Add(v2 = new Vertex(75, 125, 0, 0));
+            _canvasObjects.Insert(0,new Edge(v1, v2));
         }
     }
 
@@ -301,11 +307,15 @@ namespace Graph_Constructor_FLP.ViewModel
     public class Vertex : CanvasObj
     {
         #region Fields
-        readonly ObservableCollection<Edge> _edges = new();
+        ObservableCollection<Edge> _edgesBegin = new();
+        ObservableCollection<Edge> _edgesEnd = new();
         #endregion
 
         #region Properties
-        public ObservableCollection<Edge> Edges => _edges;
+        public ObservableCollection<Edge> EdgesBegin => _edgesBegin;
+        public ObservableCollection<Edge> EdgesEnd => _edgesEnd;
+
+        public ObservableCollection<Edge> Edges => EdgesBegin.Concat(EdgesEnd).ToObservableCollection();
 
         public Color? FillColor
         {

@@ -10,6 +10,7 @@
         xmlns:devxpri="http://schemas.devexpress.com/winfx/2008/xaml/mvvm/internal"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:converters="clr-namespace:Graph_Constructor_FLP.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" DataContext="{DynamicResource applicationVm}" KeyDown="Window_KeyDown">
@@ -141,12 +142,12 @@
                                         Y1="{DXBinding 'VertBegin.Center.Y', TargetNullValue={Binding Y}}"
                                         X2="{DXBinding 'VertEnd.Center.X', TargetNullValue={Binding Width}}"
                                         Y2="{DXBinding 'VertEnd.Center.Y', TargetNullValue={Binding Height}}"-->
-                                        <Setter Property="X1" Value="{DXBinding VertBegin.Center.X}"/>
-                                        <Setter Property="Y1" Value="{DXBinding VertBegin.Center.Y}" />
-                                        <Setter Property="X2" Value="{DXBinding VertEnd.Center.X}" />
-                                        <Setter Property="Y2" Value="{DXBinding VertEnd.Center.Y}" />
+                                        <Setter Property="X1" Value="{Binding VertBegin.Center.X}"/>
+                                        <Setter Property="Y1" Value="{Binding VertBegin.Center.Y}" />
+                                        <Setter Property="X2" Value="{Binding VertEnd.Center.X}" />
+                                        <Setter Property="Y2" Value="{Binding VertEnd.Center.Y}" />
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{DXBinding VertBegin}" Value="{x:Null}">
+                                            <DataTrigger Binding="{Binding VertBegin}" Value="{x:Null}">
                                                 <Setter Property="X1" Value="{Binding X}"/>
                                                 <Setter Property="Y1" Value="{Binding Y}"/>
                                                 <Setter Property="X2" Value="{Binding Width}"/>
@@ -164,6 +165,23 @@
                                             FontSize="{DXBinding Settings.EdgeTextSize}" Watermark="Значение">
                                 </xctk:WatermarkTextBox>
                             </StackPanel>-->
+                            <xctk:WatermarkTextBox Text="{Binding Value}"
+                                                  HorizontalAlignment="Left" VerticalAlignment="Top"
+                                                  Margin="{DXBinding Expr='new $Thickness((@e(MainLine).X1 + @e(MainLine).X2)/2 - @s.ActualWidth, (@e(MainLine).Y1 + @e(MainLine).Y2)/2 - @s.ActualHeight ,0,0)'}"
+                                     BorderBrush="{x:Null}" BorderThickness="0" Background="{x:Null}"
+                                     Foreground="{DXBinding Settings.EdgeTextColor, Converter={StaticResource ColorToBrushConverter}}"
+                                     FontSize="{DXBinding Settings.EdgeTextSize}" Watermark="Значение" PreviewKeyDown="WatermarkTextBox_PreviewKeyDown" AcceptsReturn="False"
+                                     IsEnabled="{DXBinding Expr='(int)AppVm.CanvasAction == 1'}">
+                                <!-- Margin="{DXBinding 'new $Thickness(X + Width / 2 - @s.ActualWidth, Y + Height / 2 - @s.ActualHeight, 0, 0)'}"
+                                    Margin="{DXBinding 'new $Thickness((end + (Begin - end) / 2).X + X, (end + (Begin - end) / 2).Y + Y,0,0)'}"-->
+                                <!--<xctk:WatermarkTextBox.Style>
+                                        <Style>
+                                            <Style.Triggers>
+                                                <DataTrigger 
+                                            </Style.Triggers>
+                                        </Style>
+                                    </xctk:WatermarkTextBox.Style>-->
+                            </xctk:WatermarkTextBox>
                         </Grid>
                     </DataTemplate>
 
@@ -175,18 +193,18 @@
                                     <Border Name="Border">
                                         <Grid>
                                             <Line x:Name="BorderLine"
-                                            X1="{DXBinding 'VertBegin != null ? VertBegin.Center.X : X', FallbackValue=0}"
-                                            Y1="{DXBinding 'VertBegin != null ? VertBegin.Center.Y : Y', FallbackValue=0}"
-                                            X2="{DXBinding 'VertEnd != null ? VertEnd.Center.X : Width', FallbackValue=0}"
-                                            Y2="{DXBinding 'VertEnd != null ? VertEnd.Center.Y : Height', FallbackValue=0}"
+                                            X1="{DXBinding VertBegin.Center.X}"
+                                            Y1="{DXBinding VertBegin.Center.Y}" 
+                                            X2="{DXBinding VertEnd.Center.X}" 
+                                            Y2="{DXBinding VertEnd.Center.Y}" 
                                             StrokeStartLineCap="Round"
                                             StrokeEndLineCap="Round"
                                             StrokeThickness="{DXBinding Expr='Settings.EdgeStrokeSize + 9'}"/>
                                             <Line x:Name="BorderLinePadding"
-                                            X1="{DXBinding 'VertBegin != null ? VertBegin.Center.X : X', FallbackValue=0}"
-                                            Y1="{DXBinding 'VertBegin != null ? VertBegin.Center.Y : Y', FallbackValue=0}"
-                                            X2="{DXBinding 'VertEnd != null ? VertEnd.Center.X : Width', FallbackValue=0}"
-                                            Y2="{DXBinding 'VertEnd != null ? VertEnd.Center.Y : Height', FallbackValue=0}"
+                                            X1="{DXBinding VertBegin.Center.X}"
+                                            Y1="{DXBinding VertBegin.Center.Y}"
+                                            X2="{DXBinding VertEnd.Center.X}" 
+                                            Y2="{DXBinding VertEnd.Center.Y}" 
                                             StrokeStartLineCap="Round"
                                             StrokeEndLineCap="Round"
                                             StrokeThickness="{DXBinding Expr='Settings.EdgeStrokeSize + 8'}"/>
