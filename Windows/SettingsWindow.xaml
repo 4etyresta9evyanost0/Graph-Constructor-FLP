@@ -115,7 +115,13 @@
                         Value="{Binding EdgeTextSize, Mode=TwoWay}"/>
                     <Label Margin="2" Padding="0" Content="Размер текста рёбер"/>
                 </StackPanel>
-
+                <StackPanel 
+                    Orientation="Horizontal"
+                    VerticalAlignment="Top" 
+                    HorizontalAlignment="Left">
+                    <xctk:ColorPicker Width="72" SelectedColor="{Binding EdgeTextBackgroundColor, Mode=TwoWay}"/>
+                    <Label Margin="2" Padding="0" Content="Цвет заливки текста рёбер"/>
+                </StackPanel>
             </StackPanel>
             <StackPanel>
                 <StackPanel.Resources>

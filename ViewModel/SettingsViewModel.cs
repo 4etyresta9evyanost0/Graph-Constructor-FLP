@@ -62,6 +62,12 @@ namespace Graph_Constructor_FLP.ViewModel
             set { SetValue(value); }
         }
 
+        public Color EdgeTextBackgroundColor
+        {
+            get { return GetValue<Color>(); }
+            set { SetValue(value); }
+        }
+
         // Text Edge
         public Color EdgeTextColor
         {
@@ -87,7 +93,7 @@ namespace Graph_Constructor_FLP.ViewModel
             get { return GetValue<Color>(); }
             set { SetValue(value); }
         }
-
+        
 
         public SettingsViewModel()
         { 
@@ -104,7 +110,8 @@ namespace Graph_Constructor_FLP.ViewModel
             VertexTextSize = 10;
             
             EdgeTextColor = Colors.White;
-            EdgeTextSize = 10;
+            EdgeTextSize = 16;
+            EdgeTextBackgroundColor = Colors.Black;
 
             IsAskingForDelete = true;
 

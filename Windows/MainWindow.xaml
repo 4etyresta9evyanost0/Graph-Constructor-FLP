@@ -107,7 +107,8 @@
                                      BorderBrush="{x:Null}" BorderThickness="0" Background="{x:Null}"
                                      Foreground="{DXBinding Settings.VertexTextColor, Converter={StaticResource ColorToBrushConverter}}"
                                      FontSize="{DXBinding Settings.VertexTextSize}" Watermark="Значение" PreviewKeyDown="WatermarkTextBox_PreviewKeyDown" AcceptsReturn="False"
-                                     IsEnabled="{DXBinding Expr='(int)AppVm.CanvasAction == 1'}">
+                                     IsEnabled="{DXBinding Expr='(int)AppVm.CanvasAction == 1'}"
+                                     Visibility="{DXBinding '@s.IsEnabled ? `Visible` : `Collapsed`'}">
                                     <!--<xctk:WatermarkTextBox.Style>
                                         <Style>
                                             <Style.Triggers>
@@ -167,11 +168,13 @@
                             </StackPanel>-->
                             <xctk:WatermarkTextBox Text="{Binding Value}"
                                                   HorizontalAlignment="Left" VerticalAlignment="Top"
-                                                  Margin="{DXBinding Expr='new $Thickness((@e(MainLine).X1 + @e(MainLine).X2)/2 - @s.ActualWidth, (@e(MainLine).Y1 + @e(MainLine).Y2)/2 - @s.ActualHeight ,0,0)'}"
-                                     BorderBrush="{x:Null}" BorderThickness="0" Background="{x:Null}"
+                                                  Margin="{DXBinding Expr='new $Thickness((@e(MainLine).X1 + @e(MainLine).X2)/2 - @s.ActualWidth /2, (@e(MainLine).Y1 + @e(MainLine).Y2)/2 - @s.ActualHeight /2 ,0,0)'}"
+                                     BorderBrush="{x:Null}" BorderThickness="0"
                                      Foreground="{DXBinding Settings.EdgeTextColor, Converter={StaticResource ColorToBrushConverter}}"
-                                     FontSize="{DXBinding Settings.EdgeTextSize}" Watermark="Значение" PreviewKeyDown="WatermarkTextBox_PreviewKeyDown" AcceptsReturn="False"
-                                     IsEnabled="{DXBinding Expr='(int)AppVm.CanvasAction == 1'}">
+                                     FontSize="{DXBinding Settings.EdgeTextSize}" PreviewKeyDown="WatermarkTextBox_PreviewKeyDown" AcceptsReturn="False"
+                                     IsEnabled="{DXBinding Expr='(int)AppVm.CanvasAction == 1'}"
+                                     Background="{DXBinding '@s.IsEnabled ? Settings.EdgeTextBackgroundColor : $Colors.Transparent', Converter={StaticResource ColorToBrushConverter}}"
+                                     Watermark="{DXBinding '@s.IsEnabled ? `Значение` : null'}">
                                 <!-- Margin="{DXBinding 'new $Thickness(X + Width / 2 - @s.ActualWidth, Y + Height / 2 - @s.ActualHeight, 0, 0)'}"
                                     Margin="{DXBinding 'new $Thickness((end + (Begin - end) / 2).X + X, (end + (Begin - end) / 2).Y + Y,0,0)'}"-->
                                 <!--<xctk:WatermarkTextBox.Style>
