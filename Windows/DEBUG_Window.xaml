@@ -13,11 +13,11 @@
     <Window.Resources>
         <ResourceDictionary>
             <DataTemplate DataType="{x:Type vm:Vertex}">
-                <TextBlock Text="{DXBinding 'Name+`: `+ (Value == null ? `null` : Value.ToString())'}"></TextBlock>
+                <TextBlock Text="{DXBinding '`[` + Index + `]` + Name+`([`+ Center + `]): `+ (Value == null ? `null` : Value.ToString())'}"></TextBlock>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type vm:Edge}">
-                <TextBlock Text="{DXBinding 'Name+`([`+ X + `,` + Y + `];[` + Width + `,` + Height  +`]): `+ (Value == null ? `null` : Value.ToString())'}"></TextBlock>
+                <TextBlock Text="{DXBinding '`[` + Index + `]` + Name+`([`+ X + `,` + Y + `];[` + Width + `,` + Height  +`]): `+ (Value == null ? `null` : Value.ToString())'}"></TextBlock>
             </DataTemplate>
         </ResourceDictionary>
     </Window.Resources>

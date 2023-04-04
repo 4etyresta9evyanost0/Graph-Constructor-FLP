@@ -65,12 +65,12 @@ namespace Graphs
         //    get => Graph.Edges.FindAll((x) => x.Begin == this || x.End == this).ToArray();
         //}
 
-        public double?[] AdjacencyRow
+        public double[] AdjacencyRow
         {
 
             get
             {
-                double?[] row = new double?[Graph.Vertices.Count];
+                double[] row = new double[Graph.Vertices.Count];
 
                 Begins.ToList().ForEach((x) => row[x.End.Index] = x.Weight ?? 0);
                 Ends.ToList().ForEach((x) => {
@@ -253,7 +253,7 @@ namespace Graphs
             }
         }
 
-        public Graph(double?[,] mat, GraphType type) : base()
+        public Graph(double[,] mat, GraphType type) : base()
         {
             for (int i = 0; i < mat.GetLength(0); i++)
             {
@@ -298,7 +298,7 @@ namespace Graphs
                     double[] vals = new double[mat.GetLength(0)];
                     for (int j = 0; j < vals.Length; j++)
                     {
-                        vals[j] = mat[j, i] ?? 0;
+                        vals[j] = mat[j, i];
                     }
 
                     var begin = vals.ToList().FindIndex((x) => x == 1);
@@ -316,11 +316,11 @@ namespace Graphs
             Edges.ForEach((x) => x.Graph = this);
         }
 
-        public double?[,] AdjacencyMatrix
+        public double[,] AdjacencyMatrix
         {
             get
             {
-                double?[,] mat = new double?[Vertices.Count, Vertices.Count];
+                double[,] mat = new double[Vertices.Count, Vertices.Count];
 
                 for (int i = 0; i < Vertices.Count; i++)
                 {
@@ -350,7 +350,7 @@ namespace Graphs
             }
         }
 
-        public double?[,] ReachabilityMatrix
+        public double[,] ReachabilityMatrix
         {
             get
             {
@@ -358,7 +358,7 @@ namespace Graphs
                 //{
                 //    return null;
                 //}
-                double?[,] mat = new double?[Vertices.Count, Vertices.Count];
+                double[,] mat = new double[Vertices.Count, Vertices.Count];
                 for (int i = 0; i < Vertices.Count; i++)
                     for (int j = 0; j < Vertices.Count; j++)
                         mat[i, j] = AdjacencyMatrix[i, j];

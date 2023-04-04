@@ -122,6 +122,24 @@ namespace Graph_Constructor_FLP.ViewModel
             IsAskingForDelete = true;
 
             CanvasBackgroundColor = Color.FromRgb(0xCC, 0xCC, 0xCC);
+
+            SelectOnlyEdges = true;
+            SelectOnlyVerts = true;
+
+        }
+
+        // в MainWindow
+
+        public bool SelectOnlyEdges
+        {
+            get { return GetValue<bool>(); }
+            set { SetValue(value); }
+        }
+
+        public bool SelectOnlyVerts
+        {
+            get { return GetValue<bool>(); }
+            set { SetValue(value); }
         }
     }
 }

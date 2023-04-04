@@ -15,7 +15,6 @@ using System.Windows.Data;
 using DevExpress.Xpf.DXBinding;
 using Graph_Constructor_FLP.Windows;
 using MaterialDesignThemes.Wpf;
-using Graphs;
 
 namespace Graph_Constructor_FLP.ViewModel
 {
@@ -96,6 +95,44 @@ namespace Graph_Constructor_FLP.ViewModel
                 .Cast<Edge>()
                 .ToObservableCollection();
 
+
+                // Function to perform DFS traversal on the graph on a graph
+        void DFS(Vertex v, List<Vertex> visited)
+        {
+            // mark current node as visited
+            visited.Add(v);
+ 
+            // do for every edge begin
+            for (int i = 0; i < v.EdgesBegin.Count; i++)
+            {
+                if (!visited.Contains(v.EdgesBegin[i].VertEnd))
+                {
+                    DFS(v.EdgesBegin[i].VertEnd, visited);
+                }
+            }
+            // do for every edge end
+            for (int i = 0; i < v.EdgesEnd.Count; i++)
+            {
+                if (!visited.Contains(v.EdgesEnd[i].VertBegin))
+                {
+                    DFS(v.EdgesEnd[i].VertBegin, visited);
+                }
+            }
+        }
+
+        public bool IsAllConnected
+        {
+            get
+            {
+                var visted = new List<Vertex>(Vertices.Count);
+                //var toCheckEdges = new List<Edge>(Edges);
+
+                DFS(Vertices[0], visted);
+
+                return visted.Count == Vertices.Count;
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -105,6 +142,7 @@ namespace Graph_Constructor_FLP.ViewModel
         {
             _canvasObjects.CollectionChanged += (x, ev) =>
             {
+                var collection = x as ObservableCollection<CanvasObj>;
                 RaisePropertiesChanged(
                     nameof(CanvasObjects),
                     nameof(Vertices),
@@ -140,7 +178,13 @@ namespace Graph_Constructor_FLP.ViewModel
                         break;
                     default:
                         break;
+
                 }
+
+                for (int i = 0; i < Vertices.Count; i++)
+                    Vertices[i].Index = i;
+                for (int i = 0; i < Edges.Count; i++)
+                    Edges[i].Index = i;
 
                 //foreach (var item in CanvasObjects)
                 //    if (item is Vertex vertex)
@@ -150,9 +194,55 @@ namespace Graph_Constructor_FLP.ViewModel
             };
             Vertex v1;
             Vertex v2;
-            _canvasObjects.Add(v1 = new Vertex(25, 50, 0, 0));
-            _canvasObjects.Add(v2 = new Vertex(75, 125, 0, 0));
-            _canvasObjects.Insert(0, new Edge(v1, v2));
+            Vertex v3;
+            Vertex v4;
+            Vertex v5;
+            Vertex v6;
+            Vertex v7;
+            Vertex v8;
+            _canvasObjects.Add(v1 = new Vertex(201, 34, 0, 0));  _canvasObjects.Last().Value = 500;
+            _canvasObjects.Add(v2 = new Vertex(308, 40, 0, 0)); _canvasObjects.Last().Value = 300;
+            _canvasObjects.Add(v3 = new Vertex(451, 113, 0, 0));  _canvasObjects.Last().Value = 120;
+            _canvasObjects.Add(v4 = new Vertex(457, 210, 0, 0)); _canvasObjects.Last().Value = 700;
+            _canvasObjects.Add(v5 = new Vertex(309, 301, 0, 0));  _canvasObjects.Last().Value = 600;
+            _canvasObjects.Add(v6 = new Vertex(188, 289, 0, 0)); _canvasObjects.Last().Value = 620;
+            _canvasObjects.Add(v7 = new Vertex(59, 232, 0, 0));  _canvasObjects.Last().Value = 450;
+            _canvasObjects.Add(v8 = new Vertex(82, 107, 0, 0)); _canvasObjects.Last().Value = 220;
+            _canvasObjects.Insert(0, new Edge(v1, v2)); _canvasObjects[0].Value = 2;
+            _canvasObjects.Insert(0, new Edge(v1, v3)); _canvasObjects[0].Value = 1;
+            _canvasObjects.Insert(0, new Edge(v1, v6)); _canvasObjects[0].Value = 7;
+            _canvasObjects.Insert(0, new Edge(v1, v7)); _canvasObjects[0].Value = 4;
+            _canvasObjects.Insert(0, new Edge(v1, v8)); _canvasObjects[0].Value = 2;
+
+            _canvasObjects.Insert(0, new Edge(v2, v3)); _canvasObjects[0].Value = 3;
+            _canvasObjects.Insert(0, new Edge(v2, v5)); _canvasObjects[0].Value = 9;
+
+            _canvasObjects.Insert(0, new Edge(v3, v4)); _canvasObjects[0].Value = 7;
+            _canvasObjects.Insert(0, new Edge(v3, v7)); _canvasObjects[0].Value = 4;
+
+            _canvasObjects.Insert(0, new Edge(v4, v5)); _canvasObjects[0].Value = 1;
+            _canvasObjects.Insert(0, new Edge(v4, v6)); _canvasObjects[0].Value = 8;
+
+            _canvasObjects.Insert(0, new Edge(v5, v6)); _canvasObjects[0].Value = 7;
+
+            _canvasObjects.Insert(0, new Edge(v6, v7)); _canvasObjects[0].Value = 3;
+            _canvasObjects.Insert(0, new Edge(v6, v8)); _canvasObjects[0].Value = 3;
+
+            _canvasObjects.Insert(0, new Edge(v7, v8)); _canvasObjects[0].Value = 1;
+
+            //double[] vWeights = { 500, 300, 120, 700, 600, 620, 450, 220 };
+
+            //int[,] ints =
+            //{
+            //    { 0, 2, 1, 0, 0, 7, 4, 2 },
+            //    { 2, 0, 3, 0, 9, 0, 0, 0 },
+            //    { 1, 3, 0, 7, 0, 0, 4, 0 },
+            //    { 0, 0, 7, 0, 1, 8, 0, 0 },
+            //    { 0, 9, 0, 1, 0, 7, 0, 0 },
+            //    { 7, 0, 0, 8, 7, 0, 3, 3 },
+            //    { 4, 0, 4, 0, 0, 3, 0, 1 },
+            //    { 2, 0, 0, 0, 0, 3, 1, 0 }
+            //};
         }
     }
 

@@ -22,7 +22,7 @@
         <converters:ColorToBrushConverter x:Name="ColorToBrushConverter" x:Key="ColorToBrushConverter"/>
     </Window.Resources>
     <DockPanel>
-        <Menu DockPanel.Dock="Top" Background="White" BorderBrush="#FF868686" BorderThickness="0,0,0,1">
+        <Menu Panel.ZIndex="5" DockPanel.Dock="Top" Background="White" BorderBrush="#FF868686" BorderThickness="0,0,0,1">
             <MenuItem Header="Файл">
                 <MenuItem Header="Сохранить" Click="SaveButton_Click"></MenuItem>
                 <MenuItem Header="Сохранить как" Click="SaveButton_Click"></MenuItem>
@@ -43,7 +43,7 @@
             </MenuItem>
             <MenuItem x:Name="debugButton" Header="DEBUG" Click="OpenDebug_Click" Visibility="Collapsed"/>
         </Menu>
-        <WrapPanel DockPanel.Dock="Top" Background="#F5F5F5">
+        <WrapPanel Panel.ZIndex="5" DockPanel.Dock="Top" Background="#F5F5F5">
             <WrapPanel.Resources>
                 <Style TargetType="{x:Type RadioButton}">
                     <Setter Property="Margin" Value="5"/>
@@ -70,10 +70,15 @@
                     Command="{Binding CanvasActionChangeCommand}" CommandParameter="Deleting" Click="SwitchCanvas_Click"/>
             <Button x:Name="solveButton"
                     Width="180" Height="40" Margin="5" Padding="0" ToolTip="Решить" Content="Решить задачу" FontSize="24"
-                    Command="{Binding CanvasActionChangeCommand}" CommandParameter="Deleting" Click="solveButton_Click"/>
+                    Click="solveButton_Click"/>
+            <StackPanel>
+                <CheckBox Margin="5" Content="Выделять рёбра" IsChecked="{Binding Settings.SelectOnlyEdges}"></CheckBox>
+                <CheckBox Margin="5" Content="Выделять вершины" IsChecked="{Binding Settings.SelectOnlyVerts}"></CheckBox>
+            </StackPanel>
         </WrapPanel>
         <Grid>
-            <ListBox x:Name="mainCanvas" 
+            <ListBox x:Name="mainCanvas"
+                     KeyboardNavigation.TabNavigation="None"
                      Background="{Binding Settings.CanvasBackgroundColor, Converter={StaticResource ColorToBrushConverter}}" 
                      BorderBrush="Black" 
                      BorderThickness="0,1,0,0" 
@@ -85,7 +90,7 @@
                      SelectionMode="Extended">
                 <ListBox.Resources>
                     <DataTemplate DataType="{x:Type vm:Vertex}">
-                        <Grid Margin="0"
+                        <Grid Margin="0" Focusable="False" 
                                 MouseDown="Vertex_MouseDown"
                                 MouseUp="Vertex_MouseUp"
                                 MouseMove="Vertex_MouseMove"
@@ -129,7 +134,7 @@
                     </DataTemplate>
 
                     <DataTemplate DataType="{x:Type vm:Edge}">
-                        <Grid Margin="0" x:Name="Grid"
+                        <Grid Margin="0" x:Name="Grid" Focusable="False"
                             MouseDown="Edge_MouseDown"
                             MouseUp="Edge_MouseUp"
                             MouseMove="Edge_MouseMove"

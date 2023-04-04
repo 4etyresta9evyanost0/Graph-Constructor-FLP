@@ -146,6 +146,9 @@ namespace Graph_Constructor_FLP
         private Vertex? begin;
         private Edge? currentEdge;
         private bool isBinding = false;
+
+        private bool isLeftMouseDownOnEdge = false;
+        private bool isLeftMouseAndControlDownOnEdge = false;
         #endregion
 
         private void ResetMouseFields()
@@ -155,6 +158,9 @@ namespace Graph_Constructor_FLP
             isLeftMouseDownOnVertex = false;
             isLeftMouseAndControlDownOnVertex = false;
             isDraggingVertex = false;
+
+            isLeftMouseDownOnEdge = false;
+            isLeftMouseAndControlDownOnEdge = false;
 
             mainCanvas.SelectedItems.Clear();
             mainCanvas.ReleaseMouseCapture();
@@ -167,7 +173,7 @@ namespace Graph_Constructor_FLP
             if (e.ChangedButton != MouseButton.Left)
                 return;
 
-            mainCanvas.Focus();
+            //mainCanvas.Focus();
             var ellipse = (FrameworkElement)sender;
             var vertVm = (Vertex)ellipse.DataContext;
             var p = e.GetPosition(mainCanvas);
@@ -177,10 +183,9 @@ namespace Graph_Constructor_FLP
                 case CanvasAction.Adding:
                 case CanvasAction.Moving:
 
-
                     isLeftMouseDownOnVertex = true;
 
-                    if ((Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) != 0)
+                    if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
                         isLeftMouseAndControlDownOnVertex = true;
                     else
                     {
@@ -218,7 +223,8 @@ namespace Graph_Constructor_FLP
                     break;
             }
 
-
+            
+            e.Handled = true;
         }
         private void Vertex_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -227,19 +233,32 @@ namespace Graph_Constructor_FLP
 
             if (isLeftMouseDownOnVertex)
             {
-                if (!isDraggingVertex)
+                if (!isDraggingVertex || true) // Заглушка, потом наверное уберу
+                {
                     if (isLeftMouseAndControlDownOnVertex)
-                        if (mainCanvas.SelectedItems.Contains(vertVm))
-                            mainCanvas.SelectedItems.Remove(vertVm);
-                        else
-                            mainCanvas.SelectedItems.Add(vertVm);
-                    else
-                        if (mainCanvas.SelectedItems.Count != 1 ||
-                            mainCanvas.SelectedItem != vertVm)
                     {
-                        mainCanvas.SelectedItems.Clear();
-                        mainCanvas.SelectedItems.Add(vertVm);
+                        if (mainCanvas.SelectedItems.Contains(vertVm))
+                        {
+                            mainCanvas.SelectedItems.Remove(vertVm);
+                        }
+                        else
+                        {
+                            mainCanvas.SelectedItems.Add(vertVm);
+                        }
                     }
+                    else
+                    {
+                        if (mainCanvas.SelectedItems.Count == 1 && mainCanvas.SelectedItem == vertVm)
+                        {
+
+                        }
+                        else
+                        {
+                            mainCanvas.SelectedItems.Clear();
+                            mainCanvas.SelectedItems.Add(vertVm);
+                        }
+                    }
+                }
 
                 var last = (Vertex)ObjVm.CanvasObjects.Last(x => x is Vertex);
 
@@ -318,17 +337,75 @@ namespace Graph_Constructor_FLP
             {
                 case CanvasAction.Adding:
                 case CanvasAction.Moving:
-                    mainCanvas.SelectedItems.Add(edgeVm);
+
+                    isLeftMouseDownOnEdge = true;
+
+                    if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
+                    {
+                        isLeftMouseAndControlDownOnEdge = true;
+                    }
+                    else
+                    {
+                        isLeftMouseAndControlDownOnEdge = false;
+                        if (mainCanvas.SelectedItems.Count == 0)
+                        {
+                            mainCanvas.SelectedItems.Add(edgeVm);
+                        }
+                        else if (!mainCanvas.SelectedItems.Contains(edgeVm))
+                        {
+                            mainCanvas.SelectedItems.Clear();
+                            mainCanvas.SelectedItems.Add(edgeVm);
+                        }
+                    }
+                    e.Handled = true;
                     break;
                 case CanvasAction.Deleting:
-                    if (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные вершины?\r\nВсе рёбра будут также удалены!", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (!Settings.IsAskingForDelete || MessageBox.Show("Вы уверены, что хотите удалить выбранные рёбра?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                         edgeVm.Remove();
+                    else
+                        mainCanvas.SelectedItems.Clear();
                     break;
             }
+            e.Handled = true;
         }
         private void Edge_MouseUp(object sender, MouseButtonEventArgs e)
         {
             //
+            var line = (FrameworkElement)sender;
+            var edgeVm = (Edge)line.DataContext;
+
+            if (isLeftMouseDownOnEdge)
+            {
+                if (isLeftMouseAndControlDownOnEdge)
+                {
+                    if (mainCanvas.SelectedItems.Contains(edgeVm))
+                    {
+                        mainCanvas.SelectedItems.Remove(edgeVm);
+                    }
+                    else
+                    {
+                        mainCanvas.SelectedItems.Add(edgeVm);
+                    }
+                }
+                else
+                {
+                    if (mainCanvas.SelectedItems.Count == 1 && mainCanvas.SelectedItem == edgeVm)
+                    {
+
+                    }
+                    else
+                    {
+                        mainCanvas.SelectedItems.Clear();
+                        mainCanvas.SelectedItems.Add(edgeVm);
+                    }
+                }
+
+                //line.ReleaseMouseCapture();
+                isLeftMouseDownOnEdge = false;
+                isLeftMouseAndControlDownOnEdge = false;
+
+                e.Handled = true;
+            }
         }
         private void Edge_MouseMove(object sender, MouseEventArgs e)
         {
@@ -343,10 +420,10 @@ namespace Graph_Constructor_FLP
             if (e.ChangedButton != MouseButton.Left)
                 return;
 
-            mainCanvas.Focus();
-            mainCanvas.SelectedItems.Clear();
             isLeftMouseButtonDownOnCanvas = true;
             origMouseDownPoint = e.GetPosition(mainCanvas);
+
+
 
             switch (AppVm.CanvasAction)
             {
@@ -522,12 +599,38 @@ namespace Graph_Constructor_FLP
 
             mainCanvas.SelectedItems.Clear();
 
-            foreach (Vertex vert in ViewModelController.ObjectsViewModel.Vertices)
+            if (Settings.SelectOnlyVerts)
             {
-                Rect itemRect = new Rect(vert.X, vert.Y, vert.Width ?? ViewModelController.SettingsViewModel.VertexDiameter, vert.Height ?? ViewModelController.SettingsViewModel.VertexDiameter);
-                if (dragRect.Contains(itemRect))
-                    mainCanvas.SelectedItems.Add(vert);
+                foreach (Vertex vert in ViewModelController.ObjectsViewModel.Vertices)
+                {
+                    Rect itemRect = new Rect(vert.X * 0.75, vert.Y * 0.75, ViewModelController.SettingsViewModel.VertexDiameter * 0.75, ViewModelController.SettingsViewModel.VertexDiameter * 0.75);
+                    if (dragRect.Contains(itemRect))
+                        mainCanvas.SelectedItems.Add(vert);
+                }
             }
+
+            if (Settings.SelectOnlyEdges)
+            {
+                foreach (Edge edge in ViewModelController.ObjectsViewModel.Edges)
+                {
+                    var x1 = edge.VertBegin.Center.X;
+                    var y1 = edge.VertBegin.Center.Y;
+                    var x2 = edge.VertEnd.Center.X;
+                    var y2 = edge.VertEnd.Center.Y;
+                    //var w = x1 + x2;
+                    //var h = y1 + y2;
+
+                    var cx = (x1 + x2) / 2; 
+                    var cy = (y1 + y2) / 2;
+                    Rect itemRect = new Rect(
+                        cx - 5,
+                        cy - 5,
+                        5,
+                        5);
+                    if (dragRect.Contains(itemRect))
+                        mainCanvas.SelectedItems.Add(edge);
+                }
+            }    
         }
 
         #endregion
@@ -598,17 +701,73 @@ namespace Graph_Constructor_FLP
 
         private void solveButton_Click(object sender, RoutedEventArgs e)
         {
-            double?[,] vals =
+
+            if (!ObjVm.IsAllConnected)
             {
-                { 0, 2, 3, 0 },
-                { 2, 0, 4, 0 },
-                { 3, 4, 0, 12},
-                { 0, 0, 12, 0}
+                MessageBox.Show("Все вершины должны быть соединены рёбрами!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-            };
+            var verts = ObjVm.Vertices;
 
-            var g = new Graphs.Graph(vals, Graphs.GraphType.Undirected);
-            var gstr = g.AdjacencyMatrixStr;
+            var vCount = verts.Count;
+
+            var mat = new double[vCount, vCount];
+
+            
+
+
+            for (int j = 0; j < vCount; j++)
+            for (int i = 0; i < vCount; i++)
+            {
+                double[] row = new double[vCount];
+                verts[j].EdgesBegin.ToList().ForEach((x) => mat[j,x.VertEnd.Index] = x.Value ?? 0);
+                verts[j].EdgesEnd.ToList().ForEach((x) => {
+                    mat[j,x.VertBegin.Index] = x.Value ?? 0;
+                });
+                //for (int j = 0; j < vCount - i; j++)
+                //{
+                //    mat[i, j] = mat[j, i] = 0; ObjVm.Vertices[i].v;
+                //}
+            } 
+            var b = Graphs.CommonFunctions.GetStrMatrix(mat);
+            var g = new Graphs.Graph(mat, Graphs.GraphType.Undirected);
+            var dijkstraArr = g.Dijkstra();
+
+            var costsArr = new double[vCount];
+
+            costsArr = verts.Select(x => x.Value ?? 0).ToArray();
+
+            for (int i = 0; i < vCount; i++)
+                g.Vertices[i].Weight = costsArr[i];
+
+            double min = double.MaxValue;
+            int minInd = -1;
+
+            string _logStr = "";
+
+            for (int i = 0; i < vCount; i++)
+            {
+                double sum = 0;
+
+                _logStr += $"F{i + 1} = ";
+
+                for (int j = 0; j < vCount; j++)
+                {
+                    _logStr += $"{g.Vertices[j].Weight} * {dijkstraArr[i, j]}";
+                    if (j + 1 != g.Vertices.Count)
+                        _logStr += " + ";
+                    sum += (g.Vertices[j].Weight ?? 0) * dijkstraArr[i, j];
+                }
+
+
+                _logStr += $" = {costsArr[i] = sum}\r\n";
+
+                if (min > sum)
+                    min = costsArr[minInd = i];
+            }
+
+            _logStr += $"Fmin = F{minInd + 1} = {min}";
         }
     }
 }
