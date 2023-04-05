@@ -9,7 +9,7 @@
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:converters="clr-namespace:Graph_Constructor_FLP.Converters"
         mc:Ignorable="d"
-        Title="DEBUG_Window" Width="562" DataContext="{DynamicResource applicationVm}" Closing="Window_Closing">
+        Title="DEBUG" Width="562" DataContext="{DynamicResource applicationVm}" Closing="Window_Closing">
     <Window.Resources>
         <ResourceDictionary>
             <DataTemplate DataType="{x:Type vm:Vertex}">

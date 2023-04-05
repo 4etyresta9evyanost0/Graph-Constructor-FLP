@@ -13,7 +13,7 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:converters="clr-namespace:Graph_Constructor_FLP.Converters"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" DataContext="{DynamicResource applicationVm}" KeyDown="Window_KeyDown">
+        Title="Задача размещения" Height="450" Width="800" Loaded="Window_Loaded" DataContext="{DynamicResource applicationVm}" KeyDown="Window_KeyDown">
     <!--
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -68,9 +68,16 @@
             <RadioButton x:Name="deletingButton"
                     Style="{StaticResource {x:Type ToggleButton}}" Width="40" Height="40" Margin="5" Padding="0" ToolTip="Удалить (К)" Content="{StaticResource ButtonDelete}"
                     Command="{Binding CanvasActionChangeCommand}" CommandParameter="Deleting" Click="SwitchCanvas_Click"/>
-            <Button x:Name="solveButton"
-                    Width="180" Height="40" Margin="5" Padding="0" ToolTip="Решить" Content="Решить задачу" FontSize="24"
-                    Click="solveButton_Click"/>
+            <xctk:DropDownButton x:Name="solveButton"
+                    Width="200" Height="40" Margin="5" Padding="0" ToolTip="Решить" Content="Решить задачу" FontSize="24"
+                    DropDownPosition="MousePoint">
+                <xctk:DropDownButton.DropDownContent>
+                    <StackPanel>
+                        <Button FontSize="16" Padding="4" Content="Минисумное решение задачи" Click="solveButton_Click1"></Button>
+                        <Button FontSize="16" Padding="4" Content="Минимаксное решение задачи" Click="solveButton_Click2"></Button>
+                    </StackPanel>
+                </xctk:DropDownButton.DropDownContent>
+            </xctk:DropDownButton>
             <StackPanel>
                 <CheckBox Margin="5" Content="Выделять рёбра" IsChecked="{Binding Settings.SelectOnlyEdges}"></CheckBox>
                 <CheckBox Margin="5" Content="Выделять вершины" IsChecked="{Binding Settings.SelectOnlyVerts}"></CheckBox>

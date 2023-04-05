@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Graph_Constructor_FLP.Windows"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d" ResizeMode="NoResize"
-        Title="ChangeVertexWindow" Height="130" Width="250" DataContext="{DXBinding '@s'}">
+        Title="Изменть свойства вершины" Height="130" Width="250" DataContext="{DXBinding '@s'}">
     <DockPanel>
         <DockPanel DockPanel.Dock="Bottom" Height="30">
             <Button Content="Отмена" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Width="60" IsCancel="True" DockPanel.Dock="Right"/>

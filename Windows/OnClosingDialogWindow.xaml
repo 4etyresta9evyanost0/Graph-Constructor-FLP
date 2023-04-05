@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Graph_Constructor_FLP.Windows"
         mc:Ignorable="d"
-        Title="OnClosingDialogWindow" 
+        Title="" 
         Width="633.08837890625" Height="859.07767578125" 
         ResizeMode="NoResize">
     <Grid>

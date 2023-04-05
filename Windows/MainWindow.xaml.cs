@@ -29,7 +29,7 @@ namespace Graph_Constructor_FLP
     public partial class MainWindow : Window
     {
         SettingsWindow _settingsWindow;
-
+        ResultsWindow _resultsWindow;
         DEBUG_Window _debugWindow;
         ApplicationViewModel AppVm => ViewModelController.ApplicationViewModel;
         ObjectsViewModel ObjVm => ViewModelController.ObjectsViewModel;
@@ -57,6 +57,7 @@ namespace Graph_Constructor_FLP
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             _settingsWindow = new();
+            _resultsWindow = new();
             if (AppVm.IsDebug)
             {
                 _debugWindow = new();
@@ -699,7 +700,7 @@ namespace Graph_Constructor_FLP
                 mainCanvas.Focus();
         }
 
-        private void solveButton_Click(object sender, RoutedEventArgs e)
+        private void solveButton_Click1(object sender, RoutedEventArgs e)
         {
 
             if (!ObjVm.IsAllConnected)
@@ -709,30 +710,26 @@ namespace Graph_Constructor_FLP
             }
 
             var verts = ObjVm.Vertices;
-
             var vCount = verts.Count;
-
             var mat = new double[vCount, vCount];
 
-            
-
-
             for (int j = 0; j < vCount; j++)
-            for (int i = 0; i < vCount; i++)
-            {
-                double[] row = new double[vCount];
-                verts[j].EdgesBegin.ToList().ForEach((x) => mat[j,x.VertEnd.Index] = x.Value ?? 0);
-                verts[j].EdgesEnd.ToList().ForEach((x) => {
-                    mat[j,x.VertBegin.Index] = x.Value ?? 0;
-                });
-                //for (int j = 0; j < vCount - i; j++)
-                //{
-                //    mat[i, j] = mat[j, i] = 0; ObjVm.Vertices[i].v;
-                //}
-            } 
-            var b = Graphs.CommonFunctions.GetStrMatrix(mat);
+                for (int i = 0; i < vCount; i++)
+                {
+                    double[] row = new double[vCount];
+                    verts[j].EdgesBegin.ToList().ForEach((x) => mat[j, x.VertEnd.Index] = x.Value ?? 0);
+                    verts[j].EdgesEnd.ToList().ForEach((x) => {
+                        mat[j, x.VertBegin.Index] = x.Value ?? 0;
+                    });
+                    //for (int j = 0; j < vCount - i; j++)
+                    //{
+                    //    mat[i, j] = mat[j, i] = 0; ObjVm.Vertices[i].v;
+                    //}
+                }
+            var bStr = Graphs.CommonFunctions.GetStrMatrix(mat);
             var g = new Graphs.Graph(mat, Graphs.GraphType.Undirected);
             var dijkstraArr = g.Dijkstra();
+            var dStr = Graphs.CommonFunctions.GetStrMatrix(dijkstraArr);
 
             var costsArr = new double[vCount];
 
@@ -768,6 +765,135 @@ namespace Graph_Constructor_FLP
             }
 
             _logStr += $"Fmin = F{minInd + 1} = {min}";
+
+            var costsArrT = new (Vertex, double)[vCount];
+            for (int i = 0; i < vCount; i++)
+                costsArrT[i] = (verts[i], costsArr[i]);
+
+            var sortedcostsArrT = new (Vertex, double)[vCount];
+
+            sortedcostsArrT = (from p in costsArrT
+                              orderby p.Item2
+                              select p).ToArray();
+
+            var fromT = new Vertex[vCount];
+
+            for (int i = 0; i < vCount; i++)
+                fromT[i] = sortedcostsArrT[i].Item1;
+
+            _resultsWindow.tbVert.Text = $"[{verts[minInd].Index + 1}] {verts[minInd].Name} [{verts[minInd].Center}]: ({(verts[minInd].Value == null ? null : verts[minInd].Value.ToString())})";
+            _resultsWindow.tbFmin.Text = $"{min}";
+            _resultsWindow.tbLog.Text = "Матрица смежности для заданного графа:\r\n" + bStr +
+                "\r\nНахождение путей друг к другу (матрица кратчайших путей):\r\n" + dStr
+                + "\r\nНахождение сумм стоимостей путей:\r\n" + _logStr
+                + "\r\n\r\nСамый выгодный пункт размещения - это " + verts[minInd].Name + " с самой дешёвой совокупной стоймостью пути к нему (" + min.ToString() + ") и ценой размещения равной" + verts[minInd].Value.ToString() + ".";
+            _resultsWindow.lbVerts.ItemsSource = fromT;
+            _resultsWindow.Show();
         }
+
+        private void solveButton_Click2(object sender, RoutedEventArgs e)
+        {
+            if (!ObjVm.IsAllConnected)
+            {
+                MessageBox.Show("Все вершины должны быть соединены рёбрами!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var verts = ObjVm.Vertices;
+            var vCount = verts.Count;
+            var mat = new double[vCount, vCount];
+
+            for (int j = 0; j < vCount; j++)
+                for (int i = 0; i < vCount; i++)
+                {
+                    double[] row = new double[vCount];
+                    verts[j].EdgesBegin.ToList().ForEach((x) => mat[j, x.VertEnd.Index] = x.Value ?? 0);
+                    verts[j].EdgesEnd.ToList().ForEach((x) => {
+                        mat[j, x.VertBegin.Index] = x.Value ?? 0;
+                    });
+                    //for (int j = 0; j < vCount - i; j++)
+                    //{
+                    //    mat[i, j] = mat[j, i] = 0; ObjVm.Vertices[i].v;
+                    //}
+                }
+            var bStr = Graphs.CommonFunctions.GetStrMatrix(mat);
+            var g = new Graphs.Graph(mat, Graphs.GraphType.Undirected);
+            var dijkstraArr = g.Dijkstra();
+            var costsArr = new double[vCount];
+
+            costsArr = verts.Select(x => x.Value ?? 0).ToArray();
+            var dStr = Graphs.CommonFunctions.GetStrMatrix(dijkstraArr);
+
+            var mat2 = new double[vCount, vCount];
+            for (int i = 0; i < vCount; i++)
+            {
+                for (int j = 0; j < vCount; j++)
+                {
+                    mat2[i, j] = dijkstraArr[i, j] * costsArr[i];
+                }
+            }
+            var mat2Str = Graphs.CommonFunctions.GetStrMatrix(mat2);
+
+            var mat2Max = new double[vCount];
+
+            var mat2MaxArr = new int[vCount];
+            for (int i = 0; i < vCount; i++)
+            {
+                mat2Max[i] = double.MinValue;
+                for (int j = 0; j < vCount; j++)
+                {
+                    if (mat2Max[i] < mat2[i, j])
+                    {
+                        mat2Max[i] = mat2[i, mat2MaxArr[i] = j];
+                    }
+                }
+            }
+
+            string mat2MaxStr = "{ ";
+            for (int i = 0; i < vCount; i++)
+                mat2MaxStr += mat2Max[i].ToString() + (i + 1 == vCount ? "" : ", ");
+
+            mat2MaxStr += " }";
+
+            var answ = double.MaxValue;
+            var answInd = 0;
+
+            for (int i = 0; i < vCount; i++)
+            {
+                if (mat2Max[i] < answ)
+                {
+                    answ = mat2Max[answInd = i];
+                }
+            }
+
+            (Vertex, double)[] mat2MaxT = new (Vertex, double)[vCount];
+
+            for (int i = 0; i < vCount; i++)
+            {
+                mat2MaxT[i] = (verts[i], mat2Max[i]);
+            }
+
+            mat2MaxT = (from p in mat2MaxT
+                        orderby p.Item2
+                        select p).ToArray();
+
+            var maxFromT = new Vertex[vCount];
+
+            for (int i = 0; i < vCount; i++)
+            {
+                maxFromT[i] = mat2MaxT[i].Item1;
+            }
+
+            _resultsWindow.tbVert.Text = $"[{verts[answInd].Index + 1}] {verts[answInd].Name} [{verts[answInd].Center}]: ({(verts[answInd].Value == null ? null : verts[answInd].Value.ToString())})";
+            _resultsWindow.tbFmin.Text = $"{answ}";
+            _resultsWindow.tbLog.Text = "Матрица смежности для заданного графа:\r\n" + bStr +
+                "\r\nНахождение путей друг к другу (матрица кратчайших путей):\r\n" + dStr
+                + "\r\nМатрица стоимости путей (матрица минимальных стоимостей путей):\r\n" + mat2Str
+                + "\r\nНахождение максимумов из этих стоимостей: " + mat2MaxStr
+                + "\r\n\r\nСамый дешёвый выгодный пункт размещения это " + verts[answInd].Name + " с самой дешевой из дорогих стоимостью пути к нему в " + answ.ToString() + " и ценой размещения равной " + verts[answInd].Value.ToString() + ".";
+            _resultsWindow.lbVerts.ItemsSource = maxFromT;
+            _resultsWindow.Show();
+        }
+
     }
 }

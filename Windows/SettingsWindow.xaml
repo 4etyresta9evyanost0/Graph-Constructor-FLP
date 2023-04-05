@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Graph_Constructor_FLP"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="SettingsWindow" Height="378" Width="731"
+        Title="Настройки" Height="378" Width="731"
         Closing="Window_Closing" ResizeMode="NoResize"
         DataContext="{DynamicResource settingsVm}">
     <DockPanel Background="#CCC">
