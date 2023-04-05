@@ -699,9 +699,17 @@ namespace Graph_Constructor_FLP
         {
             for (int i = mainCanvas.SelectedItems.Count - 1; i >= 0; i--)
             {
-                CanvasObj vert = (CanvasObj)mainCanvas.SelectedItems[i];
-                vert.Remove();
+                if (mainCanvas.SelectedItems[i] is Edge edge)
+                    edge.Remove();
+
             }
+
+            for (int i = mainCanvas.SelectedItems.Count - 1; i >= 0; i--)
+            {
+                if (mainCanvas.SelectedItems[i] is Vertex vert)
+                    vert.Remove();
+            }
+
         }
 
         private void WatermarkTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -716,7 +724,7 @@ namespace Graph_Constructor_FLP
 
             if (!ObjVm.IsAllConnected)
             {
-                MessageBox.Show("Все вершины должны быть соединены рёбрами!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Все вершины должны быть соединены рёбрами или граф должен состоять из минимум 2 вершин и 1 ребра!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             if (!ObjVm.CanvasObjects.All(x => x.Value.HasValue))
@@ -817,7 +825,7 @@ namespace Graph_Constructor_FLP
         {
             if (!ObjVm.IsAllConnected)
             {
-                MessageBox.Show("Все вершины должны быть соединены рёбрами!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Все вершины должны быть соединены рёбрами или граф должен состоять из минимум 2 вершин и 1 ребра!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
