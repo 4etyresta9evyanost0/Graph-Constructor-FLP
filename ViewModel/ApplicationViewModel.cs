@@ -124,6 +124,10 @@ namespace Graph_Constructor_FLP.ViewModel
         {
             get
             {
+                if (Edges.Count < 1)
+                {
+                    return false;
+                }
                 var visted = new List<Vertex>(Vertices.Count);
                 //var toCheckEdges = new List<Edge>(Edges);
 

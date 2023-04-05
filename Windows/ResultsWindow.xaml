@@ -32,6 +32,6 @@
             
             </StackPanel>
         </StackPanel>
-        <TextBox x:Name="tbLog" IsReadOnly="True" Text="{DXBinding '@s.LogStr'}"/>
+        <TextBox x:Name="tbLog" IsReadOnly="True" Text="{DXBinding '@s.LogStr'}" TextWrapping="Wrap"/>
     </DockPanel>
 </Window>

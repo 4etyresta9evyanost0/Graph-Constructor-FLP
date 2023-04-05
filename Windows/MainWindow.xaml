@@ -23,7 +23,7 @@
     </Window.Resources>
     <DockPanel>
         <Menu Panel.ZIndex="5" DockPanel.Dock="Top" Background="White" BorderBrush="#FF868686" BorderThickness="0,0,0,1">
-            <MenuItem Header="Файл">
+            <!--<MenuItem Header="Файл">
                 <MenuItem Header="Сохранить" Click="SaveButton_Click"></MenuItem>
                 <MenuItem Header="Сохранить как" Click="SaveButton_Click"></MenuItem>
                 <MenuItem Header="Загрузить"></MenuItem>
@@ -31,15 +31,16 @@
                 <MenuItem Header="Экспорт в PNG"></MenuItem>
                 <Separator/>
                 <MenuItem Header="Выход"></MenuItem>
-            </MenuItem>
+            </MenuItem>-->
             <MenuItem Header="Настройки" Click="LoadSettings_Click"></MenuItem>
             <MenuItem Header="Фигуры">
+                <MenuItem Header="Приравнять пустые значения к 0" Click="NullToZero_Click"/>
                 <MenuItem Header="Убрать все соединения" Click="Delete_All_Edges_Click"/>
                 <MenuItem Header="Удалить все фигуры" Click="Delete_All_Objects_Click"/>
             </MenuItem>
             <MenuItem Header="Справка">
-                <MenuItem Header="Руководство пользователя"/>
-                <MenuItem Header="Руководство программисту"/>
+                <MenuItem Header="Руководство пользователя" Click="CommonHelp_Click"/>
+                <MenuItem Header="Руководство программисту" Click="ProgrammerHelp_Click"/>
             </MenuItem>
             <MenuItem x:Name="debugButton" Header="DEBUG" Click="OpenDebug_Click" Visibility="Collapsed"/>
         </Menu>

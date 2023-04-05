@@ -30,6 +30,7 @@ namespace Graph_Constructor_FLP
     {
         SettingsWindow _settingsWindow;
         ResultsWindow _resultsWindow;
+        HelpWindow _helpWindow;
         DEBUG_Window _debugWindow;
         ApplicationViewModel AppVm => ViewModelController.ApplicationViewModel;
         ObjectsViewModel ObjVm => ViewModelController.ObjectsViewModel;
@@ -58,6 +59,7 @@ namespace Graph_Constructor_FLP
         {
             _settingsWindow = new();
             _resultsWindow = new();
+            _helpWindow = new();
             if (AppVm.IsDebug)
             {
                 _debugWindow = new();
@@ -684,6 +686,15 @@ namespace Graph_Constructor_FLP
 
         #endregion
 
+        private void NullToZero_Click(object sender, RoutedEventArgs e)
+        {
+            ObjVm.CanvasObjects.ForEach(x =>
+            {
+                if (!x.Value.HasValue)
+                    x.Value = 0;
+            });
+        }
+
         private void Delete_All_Selected()
         {
             for (int i = mainCanvas.SelectedItems.Count - 1; i >= 0; i--)
@@ -706,6 +717,11 @@ namespace Graph_Constructor_FLP
             if (!ObjVm.IsAllConnected)
             {
                 MessageBox.Show("Все вершины должны быть соединены рёбрами!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (!ObjVm.CanvasObjects.All(x => x.Value.HasValue))
+            {
+                MessageBox.Show("Для пустых вершин и рёбер следует задать непустое значение", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -764,6 +780,12 @@ namespace Graph_Constructor_FLP
                     min = costsArr[minInd = i];
             }
 
+            if (minInd < 0)
+            {
+                MessageBox.Show("Следует назначить рёбрам ненулевое значение", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             _logStr += $"Fmin = F{minInd + 1} = {min}";
 
             var costsArrT = new (Vertex, double)[vCount];
@@ -796,6 +818,12 @@ namespace Graph_Constructor_FLP
             if (!ObjVm.IsAllConnected)
             {
                 MessageBox.Show("Все вершины должны быть соединены рёбрами!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!ObjVm.CanvasObjects.All(x => x.Value.HasValue))
+            {
+                MessageBox.Show("Для пустых нулевых и рёбер следует задать непустое значение", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -842,9 +870,9 @@ namespace Graph_Constructor_FLP
                 mat2Max[i] = double.MinValue;
                 for (int j = 0; j < vCount; j++)
                 {
-                    if (mat2Max[i] < mat2[i, j])
+                    if (mat2Max[i] < mat2[j, i])
                     {
-                        mat2Max[i] = mat2[i, mat2MaxArr[i] = j];
+                        mat2Max[i] = mat2[j, mat2MaxArr[i] = i];
                     }
                 }
             }
@@ -888,12 +916,23 @@ namespace Graph_Constructor_FLP
             _resultsWindow.tbFmin.Text = $"{answ}";
             _resultsWindow.tbLog.Text = "Матрица смежности для заданного графа:\r\n" + bStr +
                 "\r\nНахождение путей друг к другу (матрица кратчайших путей):\r\n" + dStr
-                + "\r\nМатрица стоимости путей (матрица минимальных стоимостей путей):\r\n" + mat2Str
+                + "\r\nМатрица трудности размещения:\r\n" + mat2Str
                 + "\r\nНахождение максимумов из этих стоимостей: " + mat2MaxStr
-                + "\r\n\r\nСамый дешёвый выгодный пункт размещения это " + verts[answInd].Name + " с самой дешевой из дорогих стоимостью пути к нему в " + answ.ToString() + " и ценой размещения равной " + verts[answInd].Value.ToString() + ".";
+                + "\r\n\r\nСамый дешёвый выгодный пункт размещения это " + verts[answInd].Name + " с самой дешевой из дорогих стоимостью пути к нему в " + answ.ToString() + " и количеством " + verts[answInd].Value.ToString() + ".";
             _resultsWindow.lbVerts.ItemsSource = maxFromT;
             _resultsWindow.Show();
         }
 
+        private void CommonHelp_Click(object sender, RoutedEventArgs e)
+        {
+            _helpWindow.Show();
+            _helpWindow.documentViewer.Document = (FlowDocument)_helpWindow.Resources["commonHelp"];
+        }
+
+        private void ProgrammerHelp_Click(object sender, RoutedEventArgs e)
+        {
+            _helpWindow.Show();
+            _helpWindow.documentViewer.Document = (FlowDocument)_helpWindow.Resources["programmerHelp"];
+        }
     }
 }
